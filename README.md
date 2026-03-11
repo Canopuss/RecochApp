@@ -134,7 +134,7 @@ programa - Taiga -
 ENTIDAD RELACION
 
 Modelo Entidad-Relación y Estructura SQL
-1. Entidades y Atributos
+Entidades y Atributos
     • Usuario (User): Contiene la información de acceso y perfil básico.
         ◦ id_usuario: Identificador único (PK).
         ◦ email: Correo electrónico del usuario.
@@ -160,7 +160,7 @@ Modelo Entidad-Relación y Estructura SQL
         ◦ id_stat: (PK).
         ◦ goles, asistencias, faltas, pases_clave, recuperaciones, paradas.
 
-3. Relaciones del Sistema
+Relaciones del Sistema
     • Membresia (Jugador - Club): Un jugador puede estar en muchos clubes y un club tiene muchos jugadores (N:M).
     • Participacion (Jugador - Partido): Relación que registra qué jugadores asistieron a qué partido (N:M).
     • Registro (Partido - Estadistica): Un partido genera múltiples registros de estadísticas, uno por cada jugador participante (1:N).
