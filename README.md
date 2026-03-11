@@ -4,53 +4,55 @@ Bitacora de entrega RecochApp
 
 # RecochApp - Sistema de Gestión para Fútbol Aficionado
 
+# Informe Inicial de Proyecto: RecochApp (Spring Boot)
+
 ## 1. Justificación y Pertinencia
-[cite_start]El fútbol aficionado es un fenómeno social masivo que carece de herramientas para profesionalizar la experiencia del jugador amateur[cite: 117]. [cite_start]La mayoría de los grupos gestionan sus estadísticas de forma rudimentaria en chats o hojas de cálculo[cite: 118]. [cite_start]**RecochApp** busca aumentar la retención y el compromiso integrando un sistema de comparación con jugadores profesionales (FIFA/EA Sports)[cite: 119, 120].
+El fútbol aficionado es un fenómeno social masivo, pero carece de herramientas que profesionalicen la experiencia del jugador amateur. La mayoría de los grupos gestionan sus estadísticas de forma rudimentaria mediante chats de WhatsApp o hojas de cálculo. 
+
+**RecochApp** ofrece un valor agregado emocional y competitivo único al integrar un sistema de comparación con jugadores profesionales (FIFA/EA Sports), transformando datos planos en una experiencia visual altamente compartible en redes sociales.
 
 ## 2. Mundo del Problema
-Identificamos tres problemas críticos en el ecosistema recreativo:
-* [cite_start]**Informalidad de datos:** No existe un registro histórico confiable del rendimiento[cite: 123].
-* [cite_start]**Falta de incentivos:** Ausencia de reconocimiento tangible del progreso tras finalizar temporadas[cite: 124, 125].
-* [cite_start]**Desconexión digital:** Los jugadores no ven reflejadas sus habilidades bajo estándares métricos profesionales[cite: 126].
+En el ecosistema del fútbol recreativo, identificamos tres problemas críticos:
+* **Informalidad de datos:** No existe un registro histórico confiable del rendimiento individual.
+* **Falta de incentivos:** Ausencia de un reconocimiento tangible del progreso tras finalizar temporadas.
+* **Desconexión digital:** Los jugadores consumen contenido profesional pero no ven sus propias habilidades reflejadas bajo esos mismos estándares métricos.
 
-## 3. Especificaciones Técnicas
+## 3. Especificaciones del Sistema
 
-### Requerimientos Funcionales Destacados
-* [cite_start]**RF01/02:** Registro de usuarios y gestión de clubes o grupos de amigos[cite: 129, 130].
-* [cite_start]**RF04/05:** Carga de estadísticas básicas (goles, asistencias) y avanzadas (pases clave, recuperaciones)[cite: 132, 133].
-* [cite_start]**RF08/09:** Algoritmo de comparación amateur vs. profesional y cálculo de "Valor de Mercado"[cite: 136, 137].
-* [cite_start]**RF11/12:** Generación de "Tarjeta FIFA" personalizada con eliminación de fondo en la fotografía[cite: 139, 140].
+### Requerimientos Funcionales (RF)
+* **Gestión de Usuarios:** Registro e inicio de sesión con roles de Jugador, Capitán y Administrador.
+* **Gestión de Clubes:** Creación de grupos de amigos y administración de "Clubes".
+* **Registro de Partidos:** Control de fecha, lugar y carga de estadísticas (Goles, asistencias, faltas, pases clave y paradas).
+* **Gamificación:** Sistema de votación para el "MVP", algoritmo de comparación con stats de FIFA y cálculo automático de "Valor de Mercado".
+* **Tarjeta FIFA:** Generación y exportación de tarjetas personalizadas (PNG/JPG) con eliminación de fondo.
 
-### Requerimientos No Funcionales
-* [cite_start]**Seguridad:** Encriptación de contraseñas mediante algoritmos como BCrypt[cite: 151].
-* [cite_start]**Rendimiento:** Consultas de comparación con tiempo de respuesta menor a 10 segundos[cite: 153].
-* [cite_start]**Escalabilidad:** Capacidad inicial para 500 usuarios concurrentes[cite: 155].
-* [cite_start]**Disponibilidad:** Sistema activo el 99.5% del tiempo[cite: 152].
+### Requerimientos No Funcionales (RNF)
+* **Seguridad:** Protección de datos y encriptación de contraseñas mediante **BCrypt**.
+* **Rendimiento:** Consultas de comparación optimizadas para no tardar más de 10 segundos.
+* **Diseño:** Interfaz responsiva inspirada en la estética de **EA Sports**.
+* **Integridad:** Validación estricta de formularios para evitar inyecciones SQL y auditoría de cambios en partidos cerrados.
 
 ---
 
 ## 4. Diseño de Base de Datos (Relacional)
 
-### Entidades y Atributos
-* [cite_start]**Usuario (User):** Información de acceso y perfil básico[cite: 216].
-    * [cite_start]`id_usuario` (PK), `email`, `password`, `nombre_completo`, `foto_perfil`[cite: 217, 218, 219, 220, 221].
-* [cite_start]**Jugador (Player):** Perfil técnico y físico[cite: 222].
-    * [cite_start]`id_jugador` (PK, FK), `estatura`, `peso`, `pierna_habil`, `valor_mercado`, `id_fifa_referencia`[cite: 223, 224, 225, 226].
-* [cite_start]**Club / Equipo (Club):** Grupos organizados[cite: 227].
-    * [cite_start]`id_club` (PK), `nombre_club`, `codigo_invitacion`, `id_capitan` (FK)[cite: 228, 229, 230, 231].
-* [cite_start]**Partido (Match):** Encuentros programados[cite: 232].
-    * [cite_start]`id_partido` (PK), `fecha`, `lugar`, `estado` (Abierto/Cerrado), `id_mvp` (FK)[cite: 233, 234, 235, 236].
-* [cite_start]**Estadística (Statistic):** Rendimiento por partido[cite: 237].
-    * [cite_start]`id_stat` (PK), `goles`, `asistencias`, `faltas`, `pases_clave`, `recuperaciones`, `paradas`[cite: 238, 239].
+### Entidades y Atributos Principales
+* **Usuario (User):** `id_usuario` (PK), `email`, `password`, `nombre_completo`, `foto_perfil`.
+* **Jugador (Player):** `id_jugador` (PK, FK), `estatura`, `peso`, `pierna_habil`, `valor_mercado`, `id_fifa_referencia`.
+* **Club / Equipo (Club):** `id_club` (PK), `nombre_club`, `codigo_invitacion`, `id_capitan` (FK).
+* **Partido (Match):** `id_partido` (PK), `fecha`, `lugar`, `estado` (Abierto/Cerrado), `id_mvp` (FK).
+* **Estadística (Statistic):** `id_stat` (PK), `goles`, `asistencias`, `faltas`, `pases_clave`, `recuperaciones`, `paradas`.
+
+
 
 ### Relaciones del Sistema
-1. [cite_start]**Membresía (N:M):** Un jugador puede pertenecer a múltiples clubes y viceversa[cite: 241].
-2. [cite_start]**Participación (N:M):** Registro de asistencia de jugadores a partidos específicos[cite: 242].
-3. [cite_start]**Registro (1:N):** Un partido genera múltiples registros de estadísticas (uno por cada jugador)[cite: 243].
+* **Membresía (N:M):** Los jugadores pueden pertenecer a múltiples clubes mediante un código de invitación.
+* **Participación (N:M):** Registro de qué jugadores se unen a cada partido específico.
+* **Registro de Stats (1:N):** Cada partido genera un desglose de estadísticas individuales para los participantes.
 
 ---
 
-## 5. Gestión del Proyecto
-* [cite_start]**Herramienta de Seguimiento:** Taiga[cite: 209].
-* [cite_start]**Control de Versiones:** Git (GitHub)[cite: 211, 212].
-* [cite_start]**Próxima Entrega:** 11 de Marzo[cite: 207].
+## 5. Gestión y Entregas
+* **Próxima Entrega:** 11 de Marzo.
+* **Herramientas:** Taiga (Gestión), Git (Versionamiento), Spring Boot (Backend).
+* **Entregables:** Repositorio con README actualizado, Bitácora y Diagrama Entidad-Relación.
