@@ -140,27 +140,27 @@ Modelo Entidad-Relación y Estructura SQL
         ◦ email: Correo electrónico del usuario.
         ◦ password: Contraseña encriptada (BCrypt).
         ◦ nombre_completo: Nombre del jugador.
-        ◦ foto_perfil: Ruta de la imagen para la tarjeta FIFA.
-    • Jugador (Player): Perfil técnico y físico del usuario.
+        ◦ foto_perfil: Ruta de la imagen para la tarjeta FIFA
+• Jugador (Player): Perfil técnico y físico del usuario.
         ◦ id_jugador: (PK, FK de Usuario).
         ◦ estatura, peso, pierna_habil.
         ◦ valor_mercado: Cálculo basado en rendimiento.
         ◦ id_fifa_referencia: ID del jugador profesional para comparación.
-    • Club / Equipo (Club): Grupos de amigos organizados.
+• Club / Equipo (Club): Grupos de amigos organizados.
         ◦ id_club: (PK).
         ◦ nombre_club.
         ◦ codigo_invitacion: Enlace único para unirse.
         ◦ id_capitan: (FK a Jugador).
-    • Partido (Match): Encuentros programados por el club.
+• Partido (Match): Encuentros programados por el club.
         ◦ id_partido: (PK).
         ◦ fecha, lugar.
         ◦ estado: Abierto o Cerrado.
         ◦ id_mvp: (FK a Jugador) Ganador de la votación.
-    • Estadistica (Statistic): Datos de rendimiento por partido.
+• Estadistica (Statistic): Datos de rendimiento por partido.
         ◦ id_stat: (PK).
         ◦ goles, asistencias, faltas, pases_clave, recuperaciones, paradas.
 
-2. Relaciones del Sistema
+3. Relaciones del Sistema
     • Membresia (Jugador - Club): Un jugador puede estar en muchos clubes y un club tiene muchos jugadores (N:M).
     • Participacion (Jugador - Partido): Relación que registra qué jugadores asistieron a qué partido (N:M).
     • Registro (Partido - Estadistica): Un partido genera múltiples registros de estadísticas, uno por cada jugador participante (1:N).
