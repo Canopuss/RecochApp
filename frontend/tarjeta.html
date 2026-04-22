@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RecochApp - Mi Tarjeta FIFA</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="background"></div>
+
+    <div class="section-container">
+        <a href="estadisticas.html" class="back-btn">Volver a Estadísticas</a>
+        
+        <div class="card-viewer-container" style="width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+            <div class="fifa-card">
+                <div class="card-inner">
+                    <div class="card-top">
+                        <div class="rating-pos">
+                            <span class="rating-val" id="card-rating">75</span>
+                            <span class="pos-val">DCS</span>
+                        </div>
+                        <div class="player-img-container"><img id="player-preview" src="https://via.placeholder.com/200x200?text=Sube+Foto" alt="Jugador"></div>
+                    </div>
+                    <div class="name-banner"><span id="card-name">NOMBRE JUGADOR</span></div>
+                    <div class="card-stats">
+                        <div class="stat-item"><span id="stat-pac">75</span><span>PAC</span></div><div class="stat-item"><span id="stat-dri">75</span><span>DRI</span></div>
+                        <div class="stat-item"><span id="stat-sho">75</span><span>SHO</span></div><div class="stat-item"><span id="stat-def">75</span><span>DEF</span></div>
+                        <div class="stat-item"><span id="stat-pas">75</span><span>PAS</span></div><div class="stat-item"><span id="stat-phy">75</span><span>PHY</span></div>
+                    </div>
+                </div>
+            </div>
+            <div class="controls" style="background: var(--card-bg); padding: 20px; border-radius: 15px; border: 1px solid var(--glass-border); text-align: center; margin-top: 20px;">
+                <h3>Personaliza tu Tarjeta</h3>
+                <label for="photo-upload" class="upload-label"><i class="fas fa-camera"></i> Subir Foto</label>
+                <input type="file" id="photo-upload" accept="image/*" style="display: none;">
+            </div>
+        </div>
+    </div>
+
+    <script src="js/card.js"></script>
+</body>
+</html>

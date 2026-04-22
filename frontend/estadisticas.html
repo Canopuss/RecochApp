@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RecochApp - Mis Estadísticas</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="background"></div>
+
+    <div class="section-container">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+            <a href="dashboard.html" class="back-btn">Volver a Panel de crack</a>
+            <a href="tarjeta.html" class="login-btn" style="width: auto; padding: 10px 20px; font-size: 0.8rem; margin: 0;">Ver Mi Tarjeta <i class="fas fa-id-card"></i></a>
+        </div>
+        
+        <header>
+            <h1><i class="fas fa-chart-line"></i> Mis Estadísticas</h1>
+            <p>Ingresa tu rendimiento del último partido para actualizar tu tarjeta.</p>
+        </header>
+
+        <form id="stats-form">
+            <div class="stats-form-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                <div class="form-group"><label for="pac">Ritmo (PAC)</label><input type="number" id="pac" min="1" max="99" value="75" required></div>
+                <div class="form-group"><label for="sho">Tiro (SHO)</label><input type="number" id="sho" min="1" max="99" value="75" required></div>
+                <div class="form-group"><label for="pas">Pase (PAS)</label><input type="number" id="pas" min="1" max="99" value="75" required></div>
+                <div class="form-group"><label for="dri">Regate (DRI)</label><input type="number" id="dri" min="1" max="99" value="75" required></div>
+                <div class="form-group"><label for="def">Defensa (DEF)</label><input type="number" id="def" min="1" max="99" value="75" required></div>
+                <div class="form-group"><label for="phy">Físico (PHY)</label><input type="number" id="phy" min="1" max="99" value="75" required></div>
+            </div>
+            <button type="submit" class="login-btn">Actualizar Rendimiento</button>
+            <div id="save-msg" style="text-align: center; margin-top: 15px; font-size: 0.9rem; color: var(--primary-green);"></div>
+        </form>
+    </div>
+
+    <script src="js/stats.js"></script>
+</body>
+</html>

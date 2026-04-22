@@ -1,0 +1,4 @@
+frontend.zip
+# Ignore temporary OS files
+.DS_Store
+Thumbs.db

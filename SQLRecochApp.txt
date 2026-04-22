@@ -1,0 +1,77 @@
+-- =============================================
+-- PROYECTO: RecochApp
+-- FECHA DE ENTREGA: 11 de Marzo de 2026
+-- =============================================
+
+CREATE DATABASE IF NOT EXISTS RecochApp;
+USE RecochApp;
+
+-- 1. Tabla de Usuarios (Acceso y perfil básico)
+CREATE TABLE Usuario (
+    id_usuario INT PRIMARY KEY AUTO_INCREMENT,
+    email VARCHAR(100) UNIQUE NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    nombre_completo VARCHAR(100),
+    foto_perfil VARCHAR(255)
+);
+
+-- 2. Tabla de Jugadores (Datos técnicos y físicos)
+-- Relación 1:1 con Usuario
+CREATE TABLE Jugador (
+    id_jugador INT PRIMARY KEY,
+    estatura DECIMAL(5,2),
+    peso DECIMAL(5,2),
+    pierna_habil ENUM('Derecha', 'Izquierda', 'Ambidiestro'),
+    valor_mercado DECIMAL(15,2) DEFAULT 0.00,
+    id_fifa_referencia INT,
+    FOREIGN KEY (id_jugador) REFERENCES Usuario(id_usuario) ON DELETE CASCADE
+);
+
+-- 3. Tabla de Clubes (Grupos de amigos)
+CREATE TABLE Club (
+    id_club INT PRIMARY KEY AUTO_INCREMENT,
+    nombre_club VARCHAR(100) NOT NULL,
+    codigo_invitacion VARCHAR(20) UNIQUE,
+    id_capitan INT,
+    FOREIGN KEY (id_capitan) REFERENCES Jugador(id_jugador)
+);
+
+-- 4. Tabla de Partidos
+-- Relación 1:N con Club
+CREATE TABLE Partido (
+    id_partido INT PRIMARY KEY AUTO_INCREMENT,
+    id_club INT,
+    fecha DATETIME,
+    lugar VARCHAR(150),
+    estado ENUM('Abierto', 'Cerrado') DEFAULT 'Abierto',
+    id_mvp INT,
+    FOREIGN KEY (id_club) REFERENCES Club(id_club),
+    FOREIGN KEY (id_mvp) REFERENCES Jugador(id_jugador)
+);
+
+-- 5. Tabla de Estadísticas por Partido
+-- Relación 1:N con Partido y Jugador
+CREATE TABLE Estadistica (
+    id_stat INT PRIMARY KEY AUTO_INCREMENT,
+    id_jugador INT,
+    id_partido INT,
+    goles INT DEFAULT 0,
+    asistencias INT DEFAULT 0,
+    faltas INT DEFAULT 0,
+    pases_clave INT DEFAULT 0,
+    recuperaciones INT DEFAULT 0,
+    paradas INT DEFAULT 0,
+    FOREIGN KEY (id_jugador) REFERENCES Jugador(id_jugador),
+    FOREIGN KEY (id_partido) REFERENCES Partido(id_partido)
+);
+
+-- 6. Tabla Intermedia: Membresía
+-- Resuelve la relación Muchos a Muchos (N:M) entre Jugador y Club
+CREATE TABLE Membresia (
+    id_jugador INT,
+    id_club INT,
+    rol_en_club ENUM('Capitán', 'Jugador') DEFAULT 'Jugador',
+    PRIMARY KEY (id_jugador, id_club),
+    FOREIGN KEY (id_jugador) REFERENCES Jugador(id_jugador),
+    FOREIGN KEY (id_club) REFERENCES Club(id_club)
+);

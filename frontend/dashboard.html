@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RecochApp - Panel de Crack</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .dashboard-container {
+            width: 95%; max-width: 1200px; padding: 40px; background: var(--card-bg);
+            backdrop-filter: blur(15px); border: 1px solid var(--glass-border); border-radius: 20px;
+            margin: 20px auto; animation: fadeIn 0.8s ease-out;
+        }
+        .header-dash { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; border-bottom: 1px solid var(--glass-border); padding-bottom: 20px; }
+        .welcome-section h1 { font-size: 2rem; color: #fff; }
+        .stats-summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-bottom: 40px; }
+        .stat-mini { background: var(--input-bg); padding: 15px; border-radius: 12px; border: 1px solid var(--glass-border); text-align: center; }
+        .stat-mini h4 { font-size: 0.7rem; color: var(--text-dim); text-transform: uppercase; }
+        .stat-mini p { font-size: 1.5rem; font-weight: 800; color: var(--primary-green); }
+    </style>
+</head>
+<body>
+    <div class="background"></div>
+
+    <div class="dashboard-container">
+        <header class="header-dash">
+            <div class="welcome-section">
+                <h1>Panel de Crack</h1>
+                <p id="welcome-msg" style="color: var(--text-dim);"></p>
+            </div>
+            <a href="index.html" class="logout-link"><i class="fas fa-sign-out-alt"></i> Salir</a>
+        </header>
+
+        <section class="stats-summary">
+            <div class="stat-mini"><h4>Partidos</h4><p>12</p></div>
+            <div class="stat-mini"><h4>Goles</h4><p>8</p></div>
+            <div class="stat-mini"><h4>Asis</h4><p>5</p></div>
+            <div class="stat-mini"><h4>Rating</h4><p>84</p></div>
+        </section>
+
+        <h2 style="font-size: 1.2rem; text-transform: uppercase; letter-spacing: 2px; color: var(--text-dim); margin-bottom: 20px;">Modo carrera</h2>
+        <section class="grid-menu">
+            <a href="recocha.html" class="menu-card">
+                <i class="fas fa-futbol"></i>
+                <h3>Recocha</h3>
+                <p>Gestión y creación de partidos individuales.</p>
+            </a>
+            <a href="torneos.html" class="menu-card">
+                <i class="fas fa-trophy"></i>
+                <h3>Torneos</h3>
+                <p>Organiza o únete a competencias locales.</p>
+            </a>
+            <a href="clubes.html" class="menu-card">
+                <i class="fas fa-users"></i>
+                <h3>Clubes</h3>
+                <p>Forma tu equipo y gestiona a tus amigos.</p>
+            </a>
+            <a href="estadisticas.html" class="menu-card">
+                <i class="fas fa-chart-line"></i>
+                <h3>Estadísticas</h3>
+                <p>Registra tu rendimiento y ve tu tarjeta FIFA.</p>
+            </a>
+        </section>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const email = localStorage.getItem('user_email');
+            const name = localStorage.getItem('user_name') || email;
+            if (!email) window.location.href = 'index.html';
+            document.getElementById('welcome-msg').textContent = `¡Qué bueno verte de nuevo, ${name}!`;
+        });
+    </script>
+</body>
+</html>
