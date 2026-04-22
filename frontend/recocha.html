@@ -16,12 +16,104 @@
             <p>Organiza partidos rápidos y convoca a tus amigos.</p>
         </header>
 
-        <div style="text-align: center; padding: 40px; border: 2px dashed var(--glass-border); border-radius: 15px;">
+        <div id="matches-list-container" style="display: none; text-align: left; margin-bottom: 20px;">
+            <h3 style="margin-bottom: 15px; color: var(--primary-green); border-bottom: 1px solid var(--glass-border); padding-bottom: 10px;">Partidos Programados</h3>
+            <div id="matches-list" style="display: grid; gap: 15px;"></div>
+        </div>
+
+        <div id="empty-state" style="text-align: center; padding: 40px; border: 2px dashed var(--glass-border); border-radius: 15px;">
             <i class="fas fa-calendar-plus" style="font-size: 3rem; color: var(--primary-green); margin-bottom: 20px; display: block;"></i>
             <h3>No tienes partidos programados</h3>
             <p style="color: var(--text-dim); margin-bottom: 25px;">Empieza creando tu primer partido para hoy.</p>
-            <button class="login-btn" style="width: auto; padding: 12px 30px;">Crear Nuevo Partido</button>
+        </div>
+
+        <div style="text-align: center; margin-top: 20px;">
+            <button id="create-match-btn" class="login-btn" style="width: auto; padding: 12px 30px;">Crear Nuevo Partido</button>
+        </div>
+        
+        <div id="create-match-form" style="display: none; margin-top: 30px; text-align: left; background: rgba(0,0,0,0.2); padding: 20px; border-radius: 10px;">
+            <h3 style="margin-bottom: 15px; color: var(--primary-green);">Detalles del Partido</h3>
+            <form id="new-match-form">
+                <div class="form-group">
+                    <label for="match-date">Fecha</label>
+                    <input type="date" id="match-date" required>
+                </div>
+                <div class="form-group">
+                    <label for="match-time">Hora</label>
+                    <input type="time" id="match-time" required>
+                </div>
+                <div class="form-group">
+                    <label for="match-location">Lugar</label>
+                    <input type="text" id="match-location" placeholder="Ej: Cancha sintética, Polideportivo..." required>
+                </div>
+                <button type="submit" class="login-btn">Programar Partido</button>
+                <button type="button" id="cancel-match-btn" class="login-btn" style="background: rgba(255,255,255,0.1); color: var(--text-white); margin-top: 10px;">Cancelar</button>
+            </form>
         </div>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const createBtn = document.getElementById('create-match-btn');
+            const formDiv = document.getElementById('create-match-form');
+            const cancelBtn = document.getElementById('cancel-match-btn');
+            const newMatchForm = document.getElementById('new-match-form');
+            const matchesListContainer = document.getElementById('matches-list-container');
+            const matchesList = document.getElementById('matches-list');
+            const emptyState = document.getElementById('empty-state');
+
+            // Load matches
+            const loadMatches = () => {
+                const matches = JSON.parse(localStorage.getItem('recochas') || '[]');
+                if (matches.length > 0) {
+                    emptyState.style.display = 'none';
+                    matchesListContainer.style.display = 'block';
+                    matchesList.innerHTML = matches.map(match => `
+                        <div style="background: var(--input-bg); padding: 15px; border-radius: 10px; border-left: 4px solid var(--primary-green);">
+                            <div style="display: flex; justify-content: space-between; align-items: start;">
+                                <div>
+                                    <h4 style="font-size: 1.1rem; margin-bottom: 5px;"><i class="fas fa-map-marker-alt" style="color: var(--primary-green);"></i> ${match.location}</h4>
+                                    <p style="color: var(--text-dim); font-size: 0.9rem;"><i class="far fa-calendar-alt"></i> ${match.date} &nbsp; <i class="far fa-clock"></i> ${match.time}</p>
+                                </div>
+                                <span style="background: rgba(57, 255, 20, 0.2); color: var(--primary-green); padding: 5px 10px; border-radius: 20px; font-size: 0.8rem; font-weight: bold;">Programado</span>
+                            </div>
+                        </div>
+                    `).join('');
+                } else {
+                    emptyState.style.display = 'block';
+                    matchesListContainer.style.display = 'none';
+                }
+            };
+
+            loadMatches();
+
+            createBtn.addEventListener('click', () => {
+                createBtn.style.display = 'none';
+                formDiv.style.display = 'block';
+            });
+
+            cancelBtn.addEventListener('click', () => {
+                formDiv.style.display = 'none';
+                createBtn.style.display = 'inline-block';
+            });
+
+            newMatchForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const date = document.getElementById('match-date').value;
+                const time = document.getElementById('match-time').value;
+                const location = document.getElementById('match-location').value;
+                
+                const newMatch = { id: Date.now(), date, time, location };
+                const matches = JSON.parse(localStorage.getItem('recochas') || '[]');
+                matches.push(newMatch);
+                localStorage.setItem('recochas', JSON.stringify(matches));
+                
+                formDiv.style.display = 'none';
+                createBtn.style.display = 'inline-block';
+                newMatchForm.reset();
+                loadMatches();
+            });
+        });
+    </script>
 </body>
 </html>

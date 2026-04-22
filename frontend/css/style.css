@@ -239,3 +239,159 @@ input:focus {
     border-radius: 20px;
     animation: fadeIn 0.8s ease-out;
 }
+
+/* FIFA Card Implementation */
+.fifa-card {
+    width: 350px;
+    height: 500px;
+    background: linear-gradient(135deg, #fceabb 0%, #fccd4d 50%, #f8b500 51%, #fbdf93 100%);
+    position: relative;
+    clip-path: polygon(10% 0, 90% 0, 100% 10%, 100% 90%, 50% 100%, 0 90%, 0 10%);
+    padding: 4px; /* Border effect */
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+    margin: 30px auto;
+    filter: drop-shadow(0 0 10px rgba(252, 226, 187, 0.3));
+}
+
+.fifa-card:hover {
+    transform: perspective(1000px) scale(1.05) rotateY(10deg);
+}
+
+.fifa-card::before {
+    content: '';
+    position: absolute;
+    top: 5px;
+    left: 5px;
+    right: 5px;
+    bottom: 0px; /* Slight offset for bottom point */
+    background: linear-gradient(135deg, #fccd4d 0%, #f8b500 100%);
+    clip-path: polygon(10% 0, 90% 0, 100% 10%, 100% 90%, 50% 100%, 0 90%, 0 10%);
+    z-index: 1;
+}
+
+.card-inner {
+    position: relative;
+    z-index: 2;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    padding: 30px 20px;
+    color: #332100; /* Rich Dark Brown for readability on gold */
+}
+
+.card-top {
+    display: flex;
+    height: 65%;
+    position: relative;
+    border-bottom: 2px solid rgba(51, 33, 0, 0.2);
+    margin-bottom: 10px;
+}
+
+.rating-pos {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    width: 30%;
+    padding-top: 10px;
+}
+
+.rating-val {
+    font-size: 3.8rem;
+    font-weight: 800;
+    line-height: 1;
+    margin-bottom: 5px;
+}
+
+.pos-val {
+    font-size: 1.25rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.player-img-container {
+    width: 70%;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    overflow: visible;
+}
+
+.player-img-container img {
+    max-width: 130%;
+    height: auto;
+    max-height: 260px;
+    filter: drop-shadow(0 15px 20px rgba(0,0,0,0.4));
+    transform: scale(1.1);
+    transform-origin: bottom;
+}
+
+.name-banner {
+    background: linear-gradient(to right, transparent, rgba(51, 33, 0, 0.1), transparent);
+    margin: 5px 0 15px 0;
+    padding: 8px;
+    text-align: center;
+}
+
+.name-banner span {
+    font-size: 1.6rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    display: block;
+}
+
+.card-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px 30px;
+    padding: 0 20px;
+    border-top: 1px solid rgba(51, 33, 0, 0.1);
+    padding-top: 15px;
+}
+
+.stat-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-weight: 700;
+    font-size: 1.2rem;
+}
+
+.stat-item span:first-child {
+    font-size: 1.3rem;
+    margin-right: 8px;
+}
+
+.stat-item span:last-child {
+    font-size: 0.95rem;
+    color: rgba(51, 33, 0, 0.7);
+    text-transform: uppercase;
+}
+
+/* Polishing Controls for Premium Feel */
+.upload-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: linear-gradient(45deg, var(--primary-green), #2ecc71);
+    color: #000;
+    padding: 14px 28px;
+    border-radius: 50px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    margin-top: 20px;
+    box-shadow: 0 10px 20px rgba(57, 255, 20, 0.2);
+}
+
+.upload-label:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 15px 30px rgba(57, 255, 20, 0.4);
+}
+
+.upload-label:active {
+    transform: translateY(-1px);
+}

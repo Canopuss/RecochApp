@@ -2,3 +2,7 @@ frontend.zip
 # Ignore temporary OS files
 .DS_Store
 Thumbs.db
+
+# Backend dependencies
+backend/node_modules/
+backend/recochapp.db

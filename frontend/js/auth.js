@@ -18,16 +18,40 @@ document.addEventListener('DOMContentLoaded', () => {
         btn.textContent = 'Verificando...';
         btn.disabled = true;
 
-        setTimeout(() => {
-            if (email && password.length >= 4) {
-                console.log('Login exitoso (simulado)');
-                localStorage.setItem('user_email', email);
+        async function loginUser() {
+            try {
+                const response = await fetch('http://localhost:3001/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const contentType = response.headers.get("content-type");
+                if (!contentType || !contentType.includes("application/json")) {
+                    throw new Error("El servidor no respondió correctamente. Asegúrate de detener el servidor (CTRL+C) y volverlo a subir con 'node server.js'");
+                }
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || 'Error al iniciar sesión');
+                }
+
+                console.log('Login exitoso:', data);
+                localStorage.setItem('user_email', data.user.email);
+                localStorage.setItem('user_name', data.user.nombre);
+                localStorage.setItem('user_id', data.user.id);
+                
                 window.location.href = 'dashboard.html';
-            } else {
-                errorMsg.textContent = 'Credenciales no válidas. Intenta de nuevo.';
+
+            } catch (err) {
+                console.error('Error:', err);
+                errorMsg.textContent = err.message;
                 btn.textContent = originalText;
                 btn.disabled = false;
             }
-        }, 1500);
+        }
+
+        loginUser();
     });
 });
