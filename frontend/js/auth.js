@@ -28,7 +28,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 const contentType = response.headers.get("content-type");
                 if (!contentType || !contentType.includes("application/json")) {
-                    throw new Error("El servidor no respondió correctamente. Asegúrate de detener el servidor (CTRL+C) y volverlo a subir con 'node server.js'");
+                    throw new Error('Respuesta invalida del backend. Verifica que Spring Boot este ejecutandose en http://localhost:3001');
                 }
 
                 const data = await response.json();
@@ -39,8 +39,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 console.log('Login exitoso:', data);
                 localStorage.setItem('user_email', data.user.email);
-                localStorage.setItem('user_name', data.user.nombre);
-                localStorage.setItem('user_id', data.user.id);
+                localStorage.setItem('user_name', data.user.nombre_completo || data.user.nombre || '');
+                localStorage.setItem('user_id', String(data.user.id_usuario ?? data.user.id ?? ''));
                 
                 window.location.href = 'dashboard.html';
 

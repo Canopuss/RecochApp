@@ -46,19 +46,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     throw new Error(data.error || 'Error al registrar el usuario');
                 }
 
-                const userId = data.id;
+                const userId = data.id_usuario ?? data.id;
 
-                // 2. Create Player Profile (Required for Stats/Clubs)
-                await fetch('http://localhost:3001/api/players', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        id_jugador: userId,
-                        estatura: 170, // Valores por defecto, el usuario los cambiará luego
-                        peso: 70,
-                        pierna_habil: 'Derecha'
-                    })
-                });
+                // El backend actual no expone /api/players todavia.
+                // Evitamos bloquear el registro por ese endpoint pendiente.
+                if (!userId) {
+                    throw new Error('No se pudo obtener el ID del usuario creado');
+                }
 
                 console.log('Usuario registrado y perfil creado:', data);
                 
