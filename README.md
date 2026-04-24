@@ -19,6 +19,7 @@ Recochapp es una plataforma diseñada para gestionar y organizar partidos, torne
 ## Tecnologías Utilizadas
 
 - **Frontend**: HTML5, Vanilla CSS, JavaScript.
+- **Backend**: Bootspring.
 - **Base de Datos**: SQL.
 - **Diseño**: Inspirado en interfaces deportivas modernas.
 
