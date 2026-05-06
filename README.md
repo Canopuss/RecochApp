@@ -58,6 +58,16 @@ Se implementó un **CRUD completo** con Spring Data MongoDB (`JugadorPerfilContr
 4. **Prueba el sistema**:
    - Ingresa a la sección de "Registro" y crea tu cuenta.
    - Accede a "Buscar Jugadores" para probar los filtros y consultar la base de datos NoSQL.
+  
+5. **Imagenes del proyecto**
+   <img width="1917" height="992" alt="image" src="https://github.com/user-attachments/assets/a0c04c61-387d-481f-a1b4-530eabbfd1c9" />
+   <img width="1917" height="992" alt="image" src="https://github.com/user-attachments/assets/f95747a6-781e-48ca-bdc9-3a0fce638ed5" />
+   <img width="1917" height="992" alt="image" src="https://github.com/user-attachments/assets/bd631000-8a46-4c3e-8066-95addcc3d7bd" />
+   <img width="1917" height="992" alt="image" src="https://github.com/user-attachments/assets/385c8735-6f82-4714-8dba-3fbf2d43f8a6" />
+   <img width="1917" height="992" alt="image" src="https://github.com/user-attachments/assets/2952a1fd-d49a-46f2-91df-667b13c61024" />
+
+
+
 
 ---
 © 2026 Recochapp Team
