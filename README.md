@@ -65,6 +65,12 @@ Se implementó un **CRUD completo** con Spring Data MongoDB (`JugadorPerfilContr
    <img width="1917" height="992" alt="image" src="https://github.com/user-attachments/assets/bd631000-8a46-4c3e-8066-95addcc3d7bd" />
    <img width="1917" height="992" alt="image" src="https://github.com/user-attachments/assets/385c8735-6f82-4714-8dba-3fbf2d43f8a6" />
    <img width="1917" height="992" alt="image" src="https://github.com/user-attachments/assets/2952a1fd-d49a-46f2-91df-667b13c61024" />
+   <img width="1917" height="992" alt="image" src="https://github.com/user-attachments/assets/cc10c1fb-6490-4412-b45f-1af6c172b1d7" />
+   <img width="1917" height="992" alt="image" src="https://github.com/user-attachments/assets/12dbe1fa-b034-4451-9bec-dfad78a60705" />
+   <img width="1917" height="992" alt="image" src="https://github.com/user-attachments/assets/782123db-d449-4c01-9807-55fcc5fc193a" />
+
+
+
 
 
 
