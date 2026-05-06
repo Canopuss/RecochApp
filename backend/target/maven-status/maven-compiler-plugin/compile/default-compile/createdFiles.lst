@@ -1,4 +1,8 @@
+com/recochapp/model/JugadorPerfil.class
+com/recochapp/repository/JugadorPerfilRepository.class
 com/recochapp/repository/UsuarioRepository.class
 com/recochapp/model/Usuario.class
+com/recochapp/controller/JugadorPerfilController.class
+com/recochapp/DataSeeder.class
 com/recochapp/RecochappApplication.class
 com/recochapp/controller/UsuarioController.class
