@@ -19,18 +19,45 @@ Recochapp es una plataforma diseñada para gestionar y organizar partidos, torne
 ## Tecnologías Utilizadas
 
 - **Frontend**: HTML5, Vanilla CSS, JavaScript.
-- **Backend**: Bootspring.
-- **Base de Datos**: SQL.
+- **Backend**: Java 17, Spring Boot 3.2.0.
+- **Base de Datos Relacional (Autenticación)**: H2 Database (Memoria).
+- **Base de Datos NoSQL (Perfiles y Búsqueda)**: MongoDB Atlas (Cloud).
 - **Diseño**: Inspirado en interfaces deportivas modernas.
 
-## Instalación y Uso
+## Arquitectura y CRUD NoSQL (MongoDB)
 
-1. Clona el repositorio:
+Recochapp utiliza una **Arquitectura Políglota** de bases de datos:
+1. **Autenticación (H2 - Relacional)**: Gestiona la creación de cuentas de usuario, correos y contraseñas.
+2. **Perfiles Deportivos (MongoDB - NoSQL)**: Gestiona los datos dinámicos de los jugadores (posiciones preferidas, zonas de juego, club, edad, pierna hábil).
+
+Se implementó un **CRUD completo** con Spring Data MongoDB (`JugadorPerfilController`):
+- **Crear (Create)**: Al registrarse un usuario, su perfil deportivo se vincula y se guarda como un documento NoSQL flexible.
+- **Leer (Read)**: Un motor de búsqueda dinámico con `MongoTemplate` permite encontrar jugadores filtrando por nombre, club, múltiples posiciones a la vez (ej. 'MCO', 'DC') y ubicación (Comunas).
+- **Actualizar (Update)**: Los usuarios pueden editar sus estadísticas y preferencias en tiempo real desde su perfil.
+- **Eliminar (Delete)**: Los usuarios pueden borrar su cuenta de forma permanente, lo que elimina en cascada sus credenciales en H2 y su documento en MongoDB.
+
+## Instalación y Uso (Guía de Ejecución)
+
+1. **Clona el repositorio**:
    ```bash
    git clone https://github.com/Canopuss/RecochApp.git
    ```
-2. Abre `frontend/index.html` en tu navegador para ver la interfaz.
-3. Importa `SQLRecochApp.txt` en tu gestor de base de datos para configurar el esquema.
+
+2. **Ejecuta el Backend (Spring Boot)**:
+   Abre una terminal, navega a la carpeta del backend y usa Maven para iniciar el servidor. 
+   *(Nota: Asegúrate de estar dentro de la carpeta `backend` antes de ejecutar el comando)*
+   ```bash
+   cd backend
+   mvn spring-boot:run
+   ```
+   *El servidor se iniciará en el puerto `3001` (http://localhost:3001) y un script automático (`DataSeeder`) insertará a 10 jugadores de prueba (ej. Carlos Valderrama, Radamel Falcao) en la colección de MongoDB.*
+
+3. **Inicia el Frontend**:
+   Puedes abrir directamente el archivo `frontend/index.html` en tu navegador para ver la interfaz, o usar una extensión como *Live Server* en VSCode.
+
+4. **Prueba el sistema**:
+   - Ingresa a la sección de "Registro" y crea tu cuenta.
+   - Accede a "Buscar Jugadores" para probar los filtros y consultar la base de datos NoSQL.
 
 ---
 © 2026 Recochapp Team
