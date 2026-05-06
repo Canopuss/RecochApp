@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RecochApp - Buscar Jugadores</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="background"></div>
+    <div class="section-container" style="max-width: 1000px;">
+        <a href="dashboard.html" class="back-btn">Volver a Panel de crack</a>
+        <header>
+            <h1><i class="fas fa-search"></i> Buscar Jugadores</h1>
+            <p>Encuentra cracks en tu zona</p>
+        </header>
+
+        <div class="search-form" style="background: rgba(0,0,0,0.2); padding: 20px; border-radius: 10px; margin-bottom: 30px;">
+            <form id="player-search-form" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; align-items: end;">
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label for="search-name">Nombre</label>
+                    <input type="text" id="search-name" placeholder="Ej. Lucho">
+                </div>
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label for="search-position">Posición</label>
+                    <select id="search-position" style="width: 100%; padding: 12px 16px; background: var(--input-bg); border: 1px solid var(--glass-border); border-radius: 10px; color: #fff; font-size: 1rem; appearance: none; cursor: pointer;">
+                        <option value="Cualquiera">Cualquiera</option>
+                    </select>
+                </div>
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label for="search-club">Club</label>
+                    <input type="text" id="search-club" placeholder="Ej. Los Galácticos">
+                </div>
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label for="search-zone">Zona</label>
+                    <select id="search-zone" style="width: 100%; padding: 12px 16px; background: var(--input-bg); border: 1px solid var(--glass-border); border-radius: 10px; color: #fff; font-size: 1rem; appearance: none; cursor: pointer;">
+                        <option value="Cualquiera">Cualquiera</option>
+                    </select>
+                </div>
+                <button type="submit" class="login-btn" style="margin-top: 0; height: 46px;"><i class="fas fa-search"></i> Buscar</button>
+            </form>
+        </div>
+
+        <div id="loading-spinner" style="display: none; text-align: center; padding: 20px;">
+            <i class="fas fa-spinner fa-spin" style="font-size: 2rem; color: var(--primary-green);"></i>
+        </div>
+
+        <div id="results-container" style="display: none;">
+            <h3 style="margin-bottom: 15px; color: var(--primary-green); border-bottom: 1px solid var(--glass-border); padding-bottom: 10px;" id="results-title">Resultados</h3>
+            <div id="results-grid" class="results-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 15px;">
+                <!-- Resultados dinámicos -->
+            </div>
+        </div>
+
+        <div id="empty-state" style="text-align: center; padding: 40px; border: 2px dashed var(--glass-border); border-radius: 15px; display: none;">
+            <i class="fas fa-user-ninja" style="font-size: 3rem; color: var(--text-dim); margin-bottom: 20px; display: block;"></i>
+            <h3>No se encontraron jugadores</h3>
+            <p style="color: var(--text-dim);">Intenta con otros filtros de búsqueda.</p>
+        </div>
+    </div>
+
+    <script src="js/buscar-jugadores.js"></script>
+</body>
+</html>

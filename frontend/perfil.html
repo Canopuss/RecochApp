@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RecochApp - Mi Perfil</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .checkbox-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 5px;
+        }
+        .chip-checkbox {
+            display: none;
+        }
+        .chip-label {
+            padding: 8px 15px;
+            background: var(--input-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.3s;
+        }
+        .chip-checkbox:checked + .chip-label {
+            background: var(--primary-green);
+            color: #000;
+            font-weight: bold;
+            border-color: var(--primary-green);
+        }
+    </style>
+</head>
+<body>
+    <div class="background"></div>
+    <div class="section-container" style="max-width: 800px; padding-bottom: 20px;">
+        <a href="dashboard.html" class="back-btn">Volver a Panel de crack</a>
+        <header>
+            <h1><i class="fas fa-id-card"></i> Mi Perfil Deportivo</h1>
+            <p>Edita tu información y preferencias</p>
+        </header>
+
+        <form id="perfil-form" style="display: none;">
+            <div style="text-align: center; margin-bottom: 20px;">
+                <img id="preview-foto" src="https://via.placeholder.com/120x120?text=Crack" alt="Foto Perfil" style="width: 120px; height: 120px; border-radius: 50%; border: 3px solid var(--primary-green); object-fit: cover; margin-bottom: 10px;">
+                <h2 id="display-name">Cargando...</h2>
+                <p id="display-email" style="color: var(--text-dim);">...</p>
+            </div>
+
+            <h3 style="color: var(--primary-green); margin-bottom: 15px; border-bottom: 1px solid var(--glass-border); padding-bottom: 5px;">Preferencias en la Cancha</h3>
+            
+            <div class="form-group">
+                <label>Posiciones Preferidas (Selecciona hasta 3)</label>
+                <div class="checkbox-group" id="posiciones-container">
+                    <!-- Opciones generadas dinámicamente -->
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                <div class="form-group">
+                    <label for="perfil-club">Club Actual</label>
+                    <input type="text" id="perfil-club" placeholder="Nombre de tu club">
+                </div>
+                <div class="form-group">
+                    <label for="perfil-zona">Zona de Residencia</label>
+                    <select id="perfil-zona" style="width: 100%; padding: 12px 16px; background: var(--input-bg); border: 1px solid var(--glass-border); border-radius: 10px; color: #fff; font-size: 1rem; appearance: none; cursor: pointer;">
+                        <!-- Opciones generadas dinámicamente -->
+                    </select>
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                <div class="form-group">
+                    <label for="perfil-pierna">Pierna Hábil</label>
+                    <select id="perfil-pierna" style="width: 100%; padding: 12px 16px; background: var(--input-bg); border: 1px solid var(--glass-border); border-radius: 10px; color: #fff; font-size: 1rem; appearance: none; cursor: pointer;">
+                        <option value="Derecha">Derecha</option>
+                        <option value="Izquierda">Izquierda</option>
+                        <option value="Ambidiestro">Ambidiestro</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="perfil-edad">Edad</label>
+                    <input type="number" id="perfil-edad" min="5" max="99">
+                </div>
+            </div>
+
+            <button type="submit" class="login-btn"><i class="fas fa-save"></i> Guardar Cambios</button>
+        </form>
+
+        <div id="loading-perfil" style="text-align: center; padding: 40px;">
+            <i class="fas fa-spinner fa-spin" style="font-size: 2rem; color: var(--primary-green);"></i>
+            <p>Cargando perfil...</p>
+        </div>
+
+        <div class="danger-zone" style="margin-top: 40px; padding: 20px; border: 1px solid rgba(255, 75, 43, 0.5); border-radius: 10px; background: rgba(255, 75, 43, 0.1);">
+            <h3 style="color: #ff4b2b; margin-bottom: 10px;"><i class="fas fa-exclamation-triangle"></i> Zona de Peligro</h3>
+            <p style="font-size: 0.9rem; color: var(--text-dim); margin-bottom: 15px;">Una vez que elimines tu cuenta, no hay vuelta atrás. Por favor, asegúrate.</p>
+            <button id="btn-eliminar-cuenta" class="btn-danger" style="background: transparent; border: 1px solid #ff4b2b; color: #ff4b2b; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: bold; transition: all 0.3s;">Eliminar mi cuenta</button>
+        </div>
+    </div>
+
+    <!-- Modales para eliminar cuenta -->
+    <div id="modal-1" class="modal-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; align-items: center; justify-content: center;">
+        <div class="modal-content" style="background: var(--bg-dark); border: 1px solid var(--glass-border); padding: 30px; border-radius: 15px; max-width: 400px; text-align: center;">
+            <h3 style="color: #ff4b2b; margin-bottom: 15px;">¿Estás seguro?</h3>
+            <p style="margin-bottom: 25px;">Esta acción eliminará permanentemente tu perfil, estadísticas y pertenencia a clubes.</p>
+            <div style="display: flex; gap: 10px; justify-content: center;">
+                <button onclick="document.getElementById('modal-1').style.display='none'" class="login-btn" style="background: var(--input-bg); color: #fff;">Cancelar</button>
+                <button id="btn-modal-1-confirm" class="login-btn" style="background: #ff4b2b; color: #fff;">Sí, continuar</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-2" class="modal-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; align-items: center; justify-content: center;">
+        <div class="modal-content" style="background: var(--bg-dark); border: 1px solid var(--glass-border); padding: 30px; border-radius: 15px; max-width: 400px; text-align: center;">
+            <h3 style="color: #ff4b2b; margin-bottom: 15px;">Confirmación Final</h3>
+            <p style="margin-bottom: 15px;">Escribe <strong>ELIMINAR</strong> para confirmar.</p>
+            <input type="text" id="delete-confirm-input" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--glass-border); background: var(--input-bg); color: #fff; margin-bottom: 20px; text-align: center;">
+            <div style="display: flex; gap: 10px; justify-content: center;">
+                <button onclick="document.getElementById('modal-2').style.display='none'" class="login-btn" style="background: var(--input-bg); color: #fff;">Cancelar</button>
+                <button id="btn-modal-2-confirm" class="login-btn" style="background: #ff4b2b; color: #fff;" disabled>Eliminar Cuenta</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/perfil.js"></script>
+</body>
+</html>

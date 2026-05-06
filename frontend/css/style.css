@@ -25,7 +25,7 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    overflow: hidden;
+    overflow-y: auto;
 }
 
 /* Background Overlay */
@@ -394,4 +394,16 @@ input:focus {
 
 .upload-label:active {
     transform: translateY(-1px);
+}
+
+/* Nuevos Estilos Búsqueda y Perfil */
+.player-result-card:hover {
+    transform: translateY(-5px);
+    border-color: var(--primary-green) !important;
+    box-shadow: 0 10px 20px rgba(57, 255, 20, 0.2);
+}
+
+.btn-danger:hover {
+    background: #ff4b2b !important;
+    color: #fff !important;
 }
