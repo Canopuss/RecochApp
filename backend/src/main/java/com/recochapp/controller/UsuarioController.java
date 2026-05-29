@@ -33,12 +33,15 @@ public class UsuarioController {
     }
 
     @PostMapping("/users")
-    public ResponseEntity<Usuario> create(@RequestBody Usuario usuario) {
+    public ResponseEntity<?> create(@RequestBody Usuario usuario) {
+        if (!repository.findByEmail(usuario.getEmail()).isEmpty()) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Este correo ya está registrado"));
+        }
         return new ResponseEntity<>(repository.save(usuario), HttpStatus.CREATED);
     }
 
     @PutMapping("/users/{id}")
-    public ResponseEntity<?> update(@PathVariable Long id, @RequestBody Usuario details) {
+    public ResponseEntity<?> update(@PathVariable String id, @RequestBody Usuario details) {
         return repository.findById(id).map(user -> {
             user.setEmail(details.getEmail());
             user.setPassword(details.getPassword());
@@ -49,7 +52,7 @@ public class UsuarioController {
     }
 
     @DeleteMapping("/users/{id}")
-    public ResponseEntity<?> delete(@PathVariable Long id) {
+    public ResponseEntity<?> delete(@PathVariable String id) {
         repository.deleteById(id);
         return ResponseEntity.ok(Map.of("message", "Usuario eliminado"));
     }

@@ -42,28 +42,7 @@ public class JugadorPerfilController {
             "POR", "CB", "LB", "RB", "MCD", "MC", "MCO", "MI", "MD", "EI", "ED", "SD", "DC", "MP"
         );
         
-        List<String> ubicaciones = Arrays.asList(
-            "Comuna 1 - Norte",
-            "Comuna 2 - Nororiental",
-            "Comuna 3 - San Francisco",
-            "Comuna 4 - Occidental",
-            "Comuna 5 - García Rovira",
-            "Comuna 6 - La Concordia",
-            "Comuna 7 - La Ciudadela",
-            "Comuna 8 - Sur Occidente",
-            "Comuna 9 - La Pedregosa",
-            "Comuna 10 - Provenza",
-            "Comuna 11 - Sur",
-            "Comuna 12 - Cabecera del Llano",
-            "Comuna 13 - Oriental",
-            "Comuna 14 - Morrorico",
-            "Comuna 15 - Centro",
-            "Comuna 16 - Lagos del Cacique",
-            "Comuna 17 - Mutis"
-        );
-        
         opciones.put("posiciones", posiciones);
-        opciones.put("ubicaciones", ubicaciones);
         
         return ResponseEntity.ok(opciones);
     }
@@ -73,7 +52,7 @@ public class JugadorPerfilController {
             @RequestParam(required = false) String nombre,
             @RequestParam(required = false) List<String> posiciones,
             @RequestParam(required = false) String club,
-            @RequestParam(required = false) String ubicacion) {
+            @RequestParam(required = false) String apodo) {
         
         Query query = new Query();
         
@@ -89,8 +68,8 @@ public class JugadorPerfilController {
             query.addCriteria(Criteria.where("posiciones").in(posiciones));
         }
         
-        if (ubicacion != null && !ubicacion.trim().isEmpty() && !"Cualquiera".equals(ubicacion)) {
-            query.addCriteria(Criteria.where("ubicacion").is(ubicacion));
+        if (apodo != null && !apodo.trim().isEmpty() && !"Cualquiera".equals(apodo)) {
+            query.addCriteria(Criteria.where("apodo").is(apodo));
         }
 
         List<JugadorPerfil> resultados = mongoTemplate.find(query, JugadorPerfil.class);
@@ -98,8 +77,15 @@ public class JugadorPerfilController {
     }
 
     @GetMapping("/perfil/{usuarioId}")
-    public ResponseEntity<JugadorPerfil> getPerfil(@PathVariable Long usuarioId) {
+    public ResponseEntity<JugadorPerfil> getPerfil(@PathVariable String usuarioId) {
         return perfilRepository.findByUsuarioId(usuarioId)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/apodo/{apodo}")
+    public ResponseEntity<JugadorPerfil> getPerfilByApodo(@PathVariable String apodo) {
+        return perfilRepository.findByApodoIgnoreCase(apodo)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
@@ -115,18 +101,25 @@ public class JugadorPerfilController {
             return ResponseEntity.badRequest().body(Map.of("error", "El perfil ya existe para este usuario"));
         }
 
+        if (perfil.getApodo() != null && !perfil.getApodo().trim().isEmpty()) {
+            Optional<JugadorPerfil> apodoExistente = perfilRepository.findByApodoIgnoreCase(perfil.getApodo());
+            if (apodoExistente.isPresent()) {
+                return ResponseEntity.badRequest().body(Map.of("error", "Este apodo ya fue tomado"));
+            }
+        }
+
         JugadorPerfil guardado = perfilRepository.save(perfil);
         return new ResponseEntity<>(guardado, HttpStatus.CREATED);
     }
 
     @PutMapping("/perfil/{usuarioId}")
-    public ResponseEntity<?> updatePerfil(@PathVariable Long usuarioId, @RequestBody JugadorPerfil details) {
+    public ResponseEntity<?> updatePerfil(@PathVariable String usuarioId, @RequestBody JugadorPerfil details) {
         return perfilRepository.findByUsuarioId(usuarioId).map(perfil -> {
             perfil.setNombreCompleto(details.getNombreCompleto());
             perfil.setEmail(details.getEmail());
             perfil.setPosiciones(details.getPosiciones());
             perfil.setClubNombre(details.getClubNombre());
-            perfil.setUbicacion(details.getUbicacion());
+            perfil.setApodo(details.getApodo());
             perfil.setEdad(details.getEdad());
             perfil.setSexo(details.getSexo());
             perfil.setPiernaHabil(details.getPiernaHabil());
@@ -139,7 +132,7 @@ public class JugadorPerfilController {
     }
 
     @DeleteMapping("/{usuarioId}")
-    public ResponseEntity<?> deleteCuentaCompleta(@PathVariable Long usuarioId) {
+    public ResponseEntity<?> deleteCuentaCompleta(@PathVariable String usuarioId) {
         // Eliminar Perfil de MongoDB
         perfilRepository.deleteByUsuarioId(usuarioId);
         

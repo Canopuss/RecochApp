@@ -4,6 +4,8 @@ import com.recochapp.model.JugadorPerfil;
 import com.recochapp.model.Usuario;
 import com.recochapp.repository.JugadorPerfilRepository;
 import com.recochapp.repository.UsuarioRepository;
+import com.recochapp.repository.ClubRepository;
+import com.recochapp.repository.TorneoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
@@ -20,21 +22,22 @@ public class DataSeeder implements CommandLineRunner {
     @Autowired
     private JugadorPerfilRepository perfilRepository;
 
+    @Autowired
+    private ClubRepository clubRepository;
+
+    @Autowired
+    private TorneoRepository torneoRepository;
+
     @Override
     public void run(String... args) throws Exception {
-        // Sembrar datos si no existe Falcao
-        if (perfilRepository.findByEmail("tigre@ejemplo.com").isEmpty()) {
-            System.out.println("Sembrando base de datos con perfiles de ejemplo...");
+        // Siempre limpiar y re-sembrar para los experimentos
+        System.out.println("Limpiando colecciones antiguas...");
+        usuarioRepository.deleteAll();
+        perfilRepository.deleteAll();
+        clubRepository.deleteAll();
+        torneoRepository.deleteAll();
 
-            List<String> correos = Arrays.asList(
-                "pibe@ejemplo.com", "linda@ejemplo.com", "escorpion@ejemplo.com",
-                "tigre@ejemplo.com", "james@ejemplo.com", "tino@ejemplo.com",
-                "cata@ejemplo.com", "mario@ejemplo.com", "coloso@ejemplo.com", "lucho@ejemplo.com"
-            );
-            
-            for (String email : correos) {
-                perfilRepository.findByEmail(email).ifPresent(p -> perfilRepository.delete(p));
-            }
+        System.out.println("Sembrando base de datos con perfiles de ejemplo...");
 
             Usuario u1 = new Usuario();
             u1.setNombre_completo("Carlos Valderrama");
@@ -47,8 +50,7 @@ public class DataSeeder implements CommandLineRunner {
             p1.setNombreCompleto(u1.getNombre_completo());
             p1.setEmail(u1.getEmail());
             p1.setPosiciones(Arrays.asList("MCO", "MC"));
-            p1.setUbicacion("Comuna 12 - Cabecera del Llano");
-            p1.setPiernaHabil("Derecha");
+            p1.setApodo("elpibe10");
             p1.setEdad(35);
             p1.setSexo("Masculino");
             // p1.setClubId(null);
@@ -65,8 +67,7 @@ public class DataSeeder implements CommandLineRunner {
             p2.setNombreCompleto(u2.getNombre_completo());
             p2.setEmail(u2.getEmail());
             p2.setPosiciones(Arrays.asList("EI", "DC"));
-            p2.setUbicacion("Comuna 1 - Norte");
-            p2.setPiernaHabil("Derecha");
+            p2.setApodo("lindac18");
             p2.setEdad(20);
             p2.setSexo("Femenino");
             // p2.setClubId(null);
@@ -83,8 +84,7 @@ public class DataSeeder implements CommandLineRunner {
             p3.setNombreCompleto(u3.getNombre_completo());
             p3.setEmail(u3.getEmail());
             p3.setPosiciones(Arrays.asList("POR"));
-            p3.setUbicacion("Comuna 10 - Provenza");
-            p3.setPiernaHabil("Derecha");
+            p3.setApodo("escorpion1");
             p3.setEdad(40);
             p3.setSexo("Masculino");
             // p3.setClubId(null);
@@ -101,8 +101,7 @@ public class DataSeeder implements CommandLineRunner {
             p4.setNombreCompleto(u4.getNombre_completo());
             p4.setEmail(u4.getEmail());
             p4.setPosiciones(Arrays.asList("DC"));
-            p4.setUbicacion("Comuna 5 - García Rovira");
-            p4.setPiernaHabil("Derecha");
+            p4.setApodo("tigre9");
             p4.setEdad(38);
             p4.setSexo("Masculino");
             perfilRepository.save(p4);
@@ -118,8 +117,7 @@ public class DataSeeder implements CommandLineRunner {
             p5.setNombreCompleto(u5.getNombre_completo());
             p5.setEmail(u5.getEmail());
             p5.setPosiciones(Arrays.asList("MCO", "MD"));
-            p5.setUbicacion("Comuna 12 - Cabecera del Llano");
-            p5.setPiernaHabil("Izquierda");
+            p5.setApodo("james10");
             p5.setEdad(32);
             p5.setSexo("Masculino");
             perfilRepository.save(p5);
@@ -135,8 +133,7 @@ public class DataSeeder implements CommandLineRunner {
             p6.setNombreCompleto(u6.getNombre_completo());
             p6.setEmail(u6.getEmail());
             p6.setPosiciones(Arrays.asList("DC", "EI"));
-            p6.setUbicacion("Comuna 4 - Occidental");
-            p6.setPiernaHabil("Derecha");
+            p6.setApodo("eltino11");
             p6.setEdad(54);
             p6.setSexo("Masculino");
             perfilRepository.save(p6);
@@ -152,8 +149,7 @@ public class DataSeeder implements CommandLineRunner {
             p7.setNombreCompleto(u7.getNombre_completo());
             p7.setEmail(u7.getEmail());
             p7.setPosiciones(Arrays.asList("MCO", "DC"));
-            p7.setUbicacion("Comuna 13 - Oriental");
-            p7.setPiernaHabil("Izquierda");
+            p7.setApodo("cata11");
             p7.setEdad(34);
             p7.setSexo("Femenino");
             perfilRepository.save(p7);
@@ -169,8 +165,7 @@ public class DataSeeder implements CommandLineRunner {
             p8.setNombreCompleto(u8.getNombre_completo());
             p8.setEmail(u8.getEmail());
             p8.setPosiciones(Arrays.asList("CB"));
-            p8.setUbicacion("Comuna 16 - Lagos del Cacique");
-            p8.setPiernaHabil("Derecha");
+            p8.setApodo("supermario3");
             p8.setEdad(48);
             p8.setSexo("Masculino");
             perfilRepository.save(p8);
@@ -186,8 +181,7 @@ public class DataSeeder implements CommandLineRunner {
             p9.setNombreCompleto(u9.getNombre_completo());
             p9.setEmail(u9.getEmail());
             p9.setPosiciones(Arrays.asList("MC", "MCD"));
-            p9.setUbicacion("Comuna 6 - La Concordia");
-            p9.setPiernaHabil("Derecha");
+            p9.setApodo("coloso19");
             p9.setEdad(55);
             p9.setSexo("Masculino");
             perfilRepository.save(p9);
@@ -203,13 +197,11 @@ public class DataSeeder implements CommandLineRunner {
             p10.setNombreCompleto(u10.getNombre_completo());
             p10.setEmail(u10.getEmail());
             p10.setPosiciones(Arrays.asList("EI", "MI"));
-            p10.setUbicacion("Comuna 15 - Centro");
-            p10.setPiernaHabil("Derecha");
+            p10.setApodo("lucho7");
             p10.setEdad(27);
             p10.setSexo("Masculino");
             perfilRepository.save(p10);
 
-            System.out.println("Perfiles de ejemplo creados exitosamente.");
-        }
+        System.out.println("Perfiles de ejemplo creados exitosamente.");
     }
 }

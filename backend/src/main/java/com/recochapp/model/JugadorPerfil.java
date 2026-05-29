@@ -11,7 +11,7 @@ public class JugadorPerfil {
     @Id
     private String id;
 
-    private Long usuarioId;
+    private String usuarioId;
 
     @TextIndexed
     private String nombreCompleto;
@@ -20,12 +20,12 @@ public class JugadorPerfil {
 
     private List<String> posiciones;
     private String clubNombre;
-    private String ubicacion;
+    private String apodo;
 
     private Integer edad;
     private String sexo;
-    private String piernaHabil;
     private String fotoPerfil;
+    private String piernaHabil;
 
     public String getId() {
         return id;
@@ -35,11 +35,11 @@ public class JugadorPerfil {
         this.id = id;
     }
 
-    public Long getUsuarioId() {
+    public String getUsuarioId() {
         return usuarioId;
     }
 
-    public void setUsuarioId(Long usuarioId) {
+    public void setUsuarioId(String usuarioId) {
         this.usuarioId = usuarioId;
     }
 
@@ -75,12 +75,12 @@ public class JugadorPerfil {
         this.clubNombre = clubNombre;
     }
 
-    public String getUbicacion() {
-        return ubicacion;
+    public String getApodo() {
+        return apodo;
     }
 
-    public void setUbicacion(String ubicacion) {
-        this.ubicacion = ubicacion;
+    public void setApodo(String apodo) {
+        this.apodo = apodo;
     }
 
     public Integer getEdad() {
@@ -99,19 +99,19 @@ public class JugadorPerfil {
         this.sexo = sexo;
     }
 
-    public String getPiernaHabil() {
-        return piernaHabil;
-    }
-
-    public void setPiernaHabil(String piernaHabil) {
-        this.piernaHabil = piernaHabil;
-    }
-
     public String getFotoPerfil() {
         return fotoPerfil;
     }
 
     public void setFotoPerfil(String fotoPerfil) {
         this.fotoPerfil = fotoPerfil;
+    }
+
+    public String getPiernaHabil() {
+        return piernaHabil;
+    }
+
+    public void setPiernaHabil(String piernaHabil) {
+        this.piernaHabil = piernaHabil;
     }
 }
