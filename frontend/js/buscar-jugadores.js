@@ -73,7 +73,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                         <p style="color: var(--text-dim); font-size: 0.85rem; margin-bottom: 5px;"><i class="fas fa-map-marker-alt"></i> ${jugador.ubicacion || 'Sin zona'}</p>
                         <p style="color: var(--text-dim); font-size: 0.85rem; margin-bottom: 15px;"><i class="fas fa-shield-halved"></i> ${jugador.clubNombre || 'Sin club'}</p>
                         
-                        <a href="perfil.html?id=${jugador.usuarioId}" class="login-btn" style="display: block; text-decoration: none; padding: 8px; font-size: 0.9rem;">Ver Perfil</a>
+                        <a href="perfil.html?apodo=${jugador.apodo}" class="login-btn" style="display: block; text-decoration: none; padding: 8px; font-size: 0.9rem;">Ver Perfil</a>
                     </div>
                 `).join('');
                 resultsContainer.style.display = 'block';

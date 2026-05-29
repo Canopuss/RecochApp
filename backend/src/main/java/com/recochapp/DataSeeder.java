@@ -1,11 +1,13 @@
 package com.recochapp;
 
+import com.recochapp.model.Club;
 import com.recochapp.model.JugadorPerfil;
 import com.recochapp.model.Usuario;
 import com.recochapp.repository.JugadorPerfilRepository;
 import com.recochapp.repository.UsuarioRepository;
 import com.recochapp.repository.ClubRepository;
 import com.recochapp.repository.TorneoRepository;
+import com.recochapp.repository.RecochaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
@@ -28,16 +30,19 @@ public class DataSeeder implements CommandLineRunner {
     @Autowired
     private TorneoRepository torneoRepository;
 
+    @Autowired
+    private RecochaRepository recochaRepository;
+
     @Override
     public void run(String... args) throws Exception {
-        // Siempre limpiar y re-sembrar para los experimentos
-        System.out.println("Limpiando colecciones antiguas...");
-        usuarioRepository.deleteAll();
-        perfilRepository.deleteAll();
-        clubRepository.deleteAll();
-        torneoRepository.deleteAll();
+        if (clubRepository.count() == 0) {
+            System.out.println("Los clubes por defecto de Colombia no están presentes. Realizando siembra limpia de datos...");
 
-        System.out.println("Sembrando base de datos con perfiles de ejemplo...");
+            usuarioRepository.deleteAll();
+            perfilRepository.deleteAll();
+            clubRepository.deleteAll();
+            torneoRepository.deleteAll();
+            recochaRepository.deleteAll();
 
             Usuario u1 = new Usuario();
             u1.setNombre_completo("Carlos Valderrama");
@@ -53,7 +58,8 @@ public class DataSeeder implements CommandLineRunner {
             p1.setApodo("elpibe10");
             p1.setEdad(35);
             p1.setSexo("Masculino");
-            // p1.setClubId(null);
+            p1.setClubNombre("Junior de Barranquilla");
+            p1.setUbicacion("Barranquilla");
             perfilRepository.save(p1);
 
             Usuario u2 = new Usuario();
@@ -70,7 +76,8 @@ public class DataSeeder implements CommandLineRunner {
             p2.setApodo("lindac18");
             p2.setEdad(20);
             p2.setSexo("Femenino");
-            // p2.setClubId(null);
+            p2.setClubNombre("Deportivo Cali");
+            p2.setUbicacion("Cali");
             perfilRepository.save(p2);
 
             Usuario u3 = new Usuario();
@@ -87,7 +94,8 @@ public class DataSeeder implements CommandLineRunner {
             p3.setApodo("escorpion1");
             p3.setEdad(40);
             p3.setSexo("Masculino");
-            // p3.setClubId(null);
+            p3.setClubNombre("Atlético Nacional");
+            p3.setUbicacion("Medellín");
             perfilRepository.save(p3);
 
             Usuario u4 = new Usuario();
@@ -104,6 +112,8 @@ public class DataSeeder implements CommandLineRunner {
             p4.setApodo("tigre9");
             p4.setEdad(38);
             p4.setSexo("Masculino");
+            p4.setClubNombre("Millonarios FC");
+            p4.setUbicacion("Bogotá");
             perfilRepository.save(p4);
 
             Usuario u5 = new Usuario();
@@ -120,6 +130,8 @@ public class DataSeeder implements CommandLineRunner {
             p5.setApodo("james10");
             p5.setEdad(32);
             p5.setSexo("Masculino");
+            p5.setClubNombre("Independiente Santa Fe");
+            p5.setUbicacion("Medellín");
             perfilRepository.save(p5);
 
             Usuario u6 = new Usuario();
@@ -136,6 +148,8 @@ public class DataSeeder implements CommandLineRunner {
             p6.setApodo("eltino11");
             p6.setEdad(54);
             p6.setSexo("Masculino");
+            p6.setClubNombre("Atlético Nacional");
+            p6.setUbicacion("Tuluá");
             perfilRepository.save(p6);
 
             Usuario u7 = new Usuario();
@@ -152,6 +166,8 @@ public class DataSeeder implements CommandLineRunner {
             p7.setApodo("cata11");
             p7.setEdad(34);
             p7.setSexo("Femenino");
+            p7.setClubNombre("América de Cali");
+            p7.setUbicacion("Medellín");
             perfilRepository.save(p7);
 
             Usuario u8 = new Usuario();
@@ -168,6 +184,8 @@ public class DataSeeder implements CommandLineRunner {
             p8.setApodo("supermario3");
             p8.setEdad(48);
             p8.setSexo("Masculino");
+            p8.setClubNombre("Deportivo Cali");
+            p8.setUbicacion("Cali");
             perfilRepository.save(p8);
 
             Usuario u9 = new Usuario();
@@ -184,6 +202,8 @@ public class DataSeeder implements CommandLineRunner {
             p9.setApodo("coloso19");
             p9.setEdad(55);
             p9.setSexo("Masculino");
+            p9.setClubNombre("Millonarios FC");
+            p9.setUbicacion("Cali");
             perfilRepository.save(p9);
 
             Usuario u10 = new Usuario();
@@ -200,8 +220,52 @@ public class DataSeeder implements CommandLineRunner {
             p10.setApodo("lucho7");
             p10.setEdad(27);
             p10.setSexo("Masculino");
+            p10.setClubNombre("Junior de Barranquilla");
+            p10.setUbicacion("Barranquilla");
             perfilRepository.save(p10);
 
-        System.out.println("Perfiles de ejemplo creados exitosamente.");
+            System.out.println("Perfiles de ejemplo creados exitosamente.");
+
+            System.out.println("Sembrando clubes por defecto de Colombia...");
+            Club c1 = new Club();
+            c1.setName("Atlético Nacional");
+            c1.setAdmin("escorpion1");
+            c1.setMembers(Arrays.asList("escorpion1", "eltino11"));
+            clubRepository.save(c1);
+
+            Club c2 = new Club();
+            c2.setName("Millonarios FC");
+            c2.setAdmin("tigre9");
+            c2.setMembers(Arrays.asList("tigre9", "coloso19"));
+            clubRepository.save(c2);
+
+            Club c3 = new Club();
+            c3.setName("América de Cali");
+            c3.setAdmin("cata11");
+            c3.setMembers(Arrays.asList("cata11", "lindac18"));
+            clubRepository.save(c3);
+
+            Club c4 = new Club();
+            c4.setName("Junior de Barranquilla");
+            c4.setAdmin("elpibe10");
+            c4.setMembers(Arrays.asList("elpibe10", "lucho7"));
+            clubRepository.save(c4);
+
+            Club c5 = new Club();
+            c5.setName("Deportivo Cali");
+            c5.setAdmin("supermario3");
+            c5.setMembers(Arrays.asList("supermario3", "lindac18"));
+            clubRepository.save(c5);
+
+            Club c6 = new Club();
+            c6.setName("Independiente Santa Fe");
+            c6.setAdmin("james10");
+            c6.setMembers(Arrays.asList("james10"));
+            clubRepository.save(c6);
+
+            System.out.println("Clubes de ejemplo creados exitosamente.");
+        } else {
+            System.out.println("La base de datos ya contiene clubes. Omitiendo siembra inicial.");
+        }
     }
 }

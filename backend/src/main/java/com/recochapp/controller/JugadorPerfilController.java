@@ -41,8 +41,12 @@ public class JugadorPerfilController {
         List<String> posiciones = Arrays.asList(
             "POR", "CB", "LB", "RB", "MCD", "MC", "MCO", "MI", "MD", "EI", "ED", "SD", "DC", "MP"
         );
-        
         opciones.put("posiciones", posiciones);
+
+        List<String> ubicaciones = Arrays.asList(
+            "Bogotá", "Medellín", "Cali", "Barranquilla", "Tuluá"
+        );
+        opciones.put("ubicaciones", ubicaciones);
         
         return ResponseEntity.ok(opciones);
     }
@@ -52,7 +56,8 @@ public class JugadorPerfilController {
             @RequestParam(required = false) String nombre,
             @RequestParam(required = false) List<String> posiciones,
             @RequestParam(required = false) String club,
-            @RequestParam(required = false) String apodo) {
+            @RequestParam(required = false) String apodo,
+            @RequestParam(required = false) String ubicacion) {
         
         Query query = new Query();
         
@@ -70,6 +75,10 @@ public class JugadorPerfilController {
         
         if (apodo != null && !apodo.trim().isEmpty() && !"Cualquiera".equals(apodo)) {
             query.addCriteria(Criteria.where("apodo").is(apodo));
+        }
+
+        if (ubicacion != null && !ubicacion.trim().isEmpty() && !"Cualquiera".equals(ubicacion)) {
+            query.addCriteria(Criteria.where("ubicacion").regex(ubicacion, "i"));
         }
 
         List<JugadorPerfil> resultados = mongoTemplate.find(query, JugadorPerfil.class);
@@ -123,6 +132,7 @@ public class JugadorPerfilController {
             perfil.setEdad(details.getEdad());
             perfil.setSexo(details.getSexo());
             perfil.setPiernaHabil(details.getPiernaHabil());
+            perfil.setUbicacion(details.getUbicacion());
             if (details.getFotoPerfil() != null) {
                 perfil.setFotoPerfil(details.getFotoPerfil());
             }

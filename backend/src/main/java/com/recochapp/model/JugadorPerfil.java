@@ -21,11 +21,20 @@ public class JugadorPerfil {
     private List<String> posiciones;
     private String clubNombre;
     private String apodo;
+    private String ubicacion;
 
     private Integer edad;
     private String sexo;
     private String fotoPerfil;
     private String piernaHabil;
+
+    public String getUbicacion() {
+        return ubicacion;
+    }
+
+    public void setUbicacion(String ubicacion) {
+        this.ubicacion = ubicacion;
+    }
 
     public String getId() {
         return id;
