@@ -13,19 +13,23 @@ document.addEventListener('DOMContentLoaded', async () => {
         const response = await fetch('http://localhost:3001/api/jugadores/opciones');
         const data = await response.json();
         
-        data.posiciones.forEach(pos => {
-            const option = document.createElement('option');
-            option.value = pos;
-            option.textContent = pos;
-            positionSelect.appendChild(option);
-        });
+        if (data && data.posiciones) {
+            data.posiciones.forEach(pos => {
+                const option = document.createElement('option');
+                option.value = pos;
+                option.textContent = pos;
+                positionSelect.appendChild(option);
+            });
+        }
 
-        data.ubicaciones.forEach(ubicacion => {
-            const option = document.createElement('option');
-            option.value = ubicacion;
-            option.textContent = ubicacion;
-            zoneSelect.appendChild(option);
-        });
+        if (data && data.ubicaciones) {
+            data.ubicaciones.forEach(ubicacion => {
+                const option = document.createElement('option');
+                option.value = ubicacion;
+                option.textContent = ubicacion;
+                zoneSelect.appendChild(option);
+            });
+        }
     } catch (error) {
         console.error('Error cargando opciones:', error);
     }
@@ -59,7 +63,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 resultsTitle.textContent = `Resultados (${data.length} jugadores)`;
                 resultsGrid.innerHTML = data.map(jugador => `
                     <div class="player-result-card" style="background: var(--input-bg); padding: 20px; border-radius: 12px; border: 1px solid var(--glass-border); text-align: center; transition: all 0.3s ease;">
-                        <img src="${jugador.fotoPerfil || 'assets/default-avatar.png'}" onerror="this.src='https://via.placeholder.com/80x80?text=Crack'" alt="Avatar" style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; margin-bottom: 10px; border: 2px solid var(--primary-green);">
+                        <img src="${jugador.fotoPerfil || 'data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22%23aaaaaa%22><path d=%22M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z%22/></svg>'}" onerror="this.onerror=null; this.src='data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22%23aaaaaa%22><path d=%22M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z%22/></svg>';" alt="Avatar" style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; margin-bottom: 10px; border: 2px solid var(--primary-green);">
                         <h4 style="font-size: 1.1rem; margin-bottom: 5px;">${jugador.nombreCompleto}</h4>
                         
                         <div style="margin-bottom: 10px;">

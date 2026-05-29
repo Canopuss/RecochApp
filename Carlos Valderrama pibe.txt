@@ -1,0 +1,11 @@
+Carlos Valderrama	pibe@ejemplo.com	1234	elpibe10
+Linda Caicedo		linda@ejemplo.com	1234	lindac18
+Rene Higuita		escorpion@ejemplo.com	1234	escorpion1
+Radamel Falcao		tigre@ejemplo.com	1234	tigre9
+James Rodriguez		james@ejemplo.com	1234	james10
+Faustino Asprilla	tino@ejemplo.com	1234	eltino11
+Catalina Usme		cata@ejemplo.com	1234	cata11
+Mario Yepes		mario@ejemplo.com	1234	supermario3
+Freddy Rincon		coloso@ejemplo.com	1234	coloso19
+Luis Diaz		lucho@ejemplo.com	1234	lucho7
+pepsi			pepsi@ejemplo.com	1234	pepsi

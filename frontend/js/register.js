@@ -11,10 +11,16 @@ document.addEventListener('DOMContentLoaded', () => {
         const age = document.getElementById('age').value;
         const gender = document.getElementById('gender').value;
         const email = document.getElementById('email').value;
+        const confirmEmail = document.getElementById('confirm-email').value;
         const password = document.getElementById('password').value;
         const confirmPassword = document.getElementById('confirm-password').value;
 
         errorMsg.textContent = '';
+
+        if (email !== confirmEmail) {
+            errorMsg.textContent = 'Los correos electrónicos no coinciden.';
+            return;
+        }
 
         if (password !== confirmPassword) {
             errorMsg.textContent = 'Las contraseñas no coinciden.';
@@ -61,25 +67,30 @@ document.addEventListener('DOMContentLoaded', () => {
                 localStorage.setItem('user_name', fullname);
                 localStorage.setItem('user_id', userId);
 
-                const selectedPos = Array.from(document.querySelectorAll('.pos-checkbox:checked')).map(cb => cb.value);
-                const zona = document.getElementById('zona').value;
-                const pierna = document.getElementById('pierna').value;
+                const apodoEl = document.getElementById('apodo');
+                const apodo = apodoEl ? apodoEl.value : '';
+                localStorage.setItem('user_apodo', apodo);
 
                 // 2. Crear Perfil MongoDB
-                await fetch('http://localhost:3001/api/jugadores/perfil', {
+                const perfilRes = await fetch('http://localhost:3001/api/jugadores/perfil', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         usuarioId: userId,
                         nombreCompleto: fullname,
                         email: email,
-                        posiciones: selectedPos,
-                        ubicacion: zona,
-                        piernaHabil: pierna,
+                        apodo: apodo,
                         edad: parseInt(age),
                         sexo: gender
                     })
                 });
+
+                if (!perfilRes.ok) {
+                    const perfilData = await perfilRes.json();
+                    // Rollback user creation
+                    await fetch(`http://localhost:3001/api/users/${userId}`, { method: 'DELETE' });
+                    throw new Error(perfilData.error || 'Este apodo ya fue tomado');
+                }
 
                 window.location.href = 'dashboard.html';
 
@@ -94,53 +105,4 @@ document.addEventListener('DOMContentLoaded', () => {
         registerUser();
     });
 
-    // Cargar opciones
-    const loadOpciones = async () => {
-        try {
-            const res = await fetch('http://localhost:3001/api/jugadores/opciones');
-            const data = await res.json();
-            
-            const zonaSelect = document.getElementById('zona');
-            data.ubicaciones.forEach(ub => {
-                const opt = document.createElement('option');
-                opt.value = ub;
-                opt.textContent = ub;
-                zonaSelect.appendChild(opt);
-            });
-
-            const posContainer = document.getElementById('posiciones-container');
-            
-            // Opción Sin Preferencia
-            const sinPrefWrapper = document.createElement('div');
-            sinPrefWrapper.innerHTML = `
-                <input type="checkbox" id="pos_Cualquiera" value="Cualquiera" class="chip-checkbox pos-checkbox">
-                <label for="pos_Cualquiera" class="chip-label">No tengo preferencia</label>
-            `;
-            posContainer.appendChild(sinPrefWrapper);
-
-            data.posiciones.forEach(pos => {
-                const wrapper = document.createElement('div');
-                wrapper.innerHTML = `
-                    <input type="checkbox" id="pos_${pos}" value="${pos}" class="chip-checkbox pos-checkbox">
-                    <label for="pos_${pos}" class="chip-label">${pos}</label>
-                `;
-                posContainer.appendChild(wrapper);
-            });
-
-            // Limitar a 3
-            document.querySelectorAll('.pos-checkbox').forEach(cb => {
-                cb.addEventListener('change', () => {
-                    const count = document.querySelectorAll('.pos-checkbox:checked').length;
-                    if (count > 3) {
-                        cb.checked = false;
-                        alert('Máximo 3 posiciones.');
-                    }
-                });
-            });
-
-        } catch (e) {
-            console.error(e);
-        }
-    };
-    loadOpciones();
 });

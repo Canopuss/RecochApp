@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RecochApp - Llaves del Torneo</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .bracket-container {
+            width: 100%;
+            overflow-x: auto; /* Permite scroll horizontal en celulares */
+            padding: 20px 0;
+            background: rgba(0,0,0,0.2);
+            border-radius: 15px;
+            margin-top: 20px;
+        }
+        .bracket-wrapper {
+            display: flex;
+            gap: 50px;
+            padding: 20px;
+            min-width: max-content; /* Asegura que no se aplaste en pantallas pequeñas */
+        }
+        .round {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-around;
+            min-height: 400px;
+        }
+        .round-title {
+            text-align: center;
+            color: var(--primary-green);
+            margin-bottom: 25px;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+            letter-spacing: 2px;
+            font-weight: bold;
+        }
+        .matchup {
+            background: var(--input-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 8px;
+            width: 240px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            position: relative;
+            margin: 15px 0;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+        .matchup:hover {
+            border-color: var(--primary-green);
+            box-shadow: 0 0 10px rgba(57, 255, 20, 0.2);
+        }
+        .team {
+            padding: 15px;
+            color: var(--text-dim);
+            font-size: 0.9rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        .team:last-child {
+            border-bottom: none;
+        }
+        .team span {
+            opacity: 0.6;
+            font-style: italic;
+        }
+        .team-score {
+            font-weight: bold;
+            color: #fff;
+            background: rgba(255,255,255,0.1);
+            padding: 2px 8px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="background"></div>
+    <div class="section-container" style="max-width: 1400px; width: 95%;">
+        <a href="torneos.html" class="back-btn"><i class="fas fa-arrow-left"></i> Volver a Torneos</a>
+        
+        <header style="display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 20px;">
+            <div>
+                <h1 id="t-title" style="margin-bottom: 10px;"><i class="fas fa-trophy"></i> Cargando...</h1>
+                <p id="t-info" style="color: var(--primary-green); font-size: 1.1rem; font-weight: bold;"></p>
+            </div>
+            <div>
+                <button id="register-team-btn" class="login-btn" style="width: auto; padding: 12px 25px;"><i class="fas fa-user-plus"></i> Inscribir a mi equipo</button>
+            </div>
+        </header>
+
+        <div class="bracket-container">
+            <div class="bracket-wrapper" id="bracket-wrapper">
+                <!-- El árbol de llaves se generará aquí con JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Inscripción -->
+    <div id="registration-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; justify-content: center; align-items: center; backdrop-filter: blur(5px);">
+        <div style="background: var(--card-bg); padding: 30px; border-radius: 15px; border: 1px solid var(--glass-border); width: 90%; max-width: 400px; text-align: center; animation: fadeIn 0.3s ease-out;">
+            <h3 style="color: var(--primary-green); margin-bottom: 20px;">Inscribir Equipo</h3>
+            <p style="color: var(--text-dim); margin-bottom: 15px; font-size: 0.9rem;">Cupos disponibles: <span id="slots-available" style="color: white; font-weight: bold;"></span></p>
+            
+            <div id="club-selection-area" style="margin-bottom: 20px; text-align: left;">
+                <!-- Se llenará con JS -->
+            </div>
+
+            <div style="display: flex; gap: 10px; justify-content: center;">
+                <button id="confirm-register-btn" class="login-btn" style="width: auto; padding: 10px 20px;">Inscribir</button>
+                <button id="cancel-register-btn" class="login-btn" style="width: auto; padding: 10px 20px; background: rgba(255,255,255,0.1); color: white;">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const tId = urlParams.get('id');
+            
+            if (!tId) {
+                window.location.href = 'torneos.html';
+                return;
+            }
+
+            const API_URL = 'http://localhost:3001/api/torneos';
+            const CLUBES_API_URL = 'http://localhost:3001/api/clubes';
+            let t = null;
+
+            try {
+                const response = await fetch(`${API_URL}/${tId}`);
+                if (!response.ok) throw new Error('Torneo not found');
+                t = await response.json();
+            } catch (error) {
+                console.error('Error fetching torneo:', error);
+                window.location.href = 'torneos.html';
+                return;
+            }
+
+            // Populate Header Info
+            document.getElementById('t-title').innerHTML = `<i class="fas fa-trophy"></i> ${t.name}`;
+            document.getElementById('t-info').innerHTML = `
+                <i class="fas fa-map-marker-alt"></i> ${t.location} &nbsp;|&nbsp; 
+                <i class="far fa-calendar"></i> ${t.date} a las ${t.time}
+            `;
+
+            // Asegurar que el torneo tenga el arreglo de equipos
+            if (!t.registeredTeams) t.registeredTeams = [];
+
+            // Helper for round names
+            const getRoundName = (roundIndex, totalRounds) => {
+                const remainingRounds = totalRounds - roundIndex;
+                if (remainingRounds === 1) return 'Final';
+                if (remainingRounds === 2) return 'Semifinal';
+                if (remainingRounds === 3) return 'Cuartos de Final';
+                if (remainingRounds === 4) return 'Octavos de Final';
+                return `Ronda ${roundIndex + 1}`;
+            };
+
+            // Render Bracket
+            const teamsCount = parseInt(t.teams); // 4, 8, 16
+            const roundsCount = Math.log2(teamsCount);
+            let bracketHtml = '';
+
+            for (let i = 0; i < roundsCount; i++) {
+                const matchupsInRound = teamsCount / Math.pow(2, i + 1);
+                bracketHtml += `<div class="round">`;
+                bracketHtml += `<div class="round-title">${getRoundName(i, roundsCount)}</div>`;
+                
+                // Add matchups for this round
+                for (let j = 0; j < matchupsInRound; j++) {
+                    let team1Name = 'Esperando rival...';
+                    let team2Name = 'Esperando rival...';
+                    let team1Color = 'var(--text-dim)';
+                    let team2Color = 'var(--text-dim)';
+
+                    // Si es la primera ronda (i==0), intentamos inyectar los equipos inscritos
+                    if (i === 0) {
+                        const index1 = j * 2;
+                        const index2 = j * 2 + 1;
+                        if (t.registeredTeams[index1]) {
+                            team1Name = `<i class="fas fa-shield-alt"></i> ${t.registeredTeams[index1]}`;
+                            team1Color = 'white';
+                        }
+                        if (t.registeredTeams[index2]) {
+                            team2Name = `<i class="fas fa-shield-alt"></i> ${t.registeredTeams[index2]}`;
+                            team2Color = 'white';
+                        }
+                    }
+
+                    bracketHtml += `
+                        <div class="matchup">
+                            <div class="team" style="color: ${team1Color};"><span>${team1Name}</span> <div class="team-score">-</div></div>
+                            <div class="team" style="color: ${team2Color};"><span>${team2Name}</span> <div class="team-score">-</div></div>
+                        </div>
+                    `;
+                }
+                
+                bracketHtml += `</div>`;
+            }
+
+            // Optional: Render an ultimate "Campeón" block
+            bracketHtml += `
+                <div class="round" style="justify-content: center;">
+                    <div class="round-title" style="color: #FFD700;">Campeón</div>
+                    <div class="matchup" style="border-color: #FFD700; background: rgba(255, 215, 0, 0.1);">
+                        <div class="team" style="justify-content: center; color: #FFD700; font-size: 1.2rem; padding: 20px;">
+                            <span><i class="fas fa-crown"></i> TBD</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('bracket-wrapper').innerHTML = bracketHtml;
+
+            // Modal Logic
+            const registerBtn = document.getElementById('register-team-btn');
+            const modal = document.getElementById('registration-modal');
+            const slotsAvailable = document.getElementById('slots-available');
+            const clubSelectionArea = document.getElementById('club-selection-area');
+            const confirmRegisterBtn = document.getElementById('confirm-register-btn');
+            
+            registerBtn.addEventListener('click', async () => {
+                const cuposLibres = teamsCount - t.registeredTeams.length;
+                if (cuposLibres <= 0) {
+                    alert('¡Este torneo ya está lleno! No hay cupos disponibles.');
+                    return;
+                }
+                slotsAvailable.textContent = cuposLibres;
+                
+                try {
+                    // Verificar clubes existentes
+                    const resClubes = await fetch(CLUBES_API_URL);
+                    const allClubes = await resClubes.json();
+                    
+                    if (allClubes.length === 0) {
+                        clubSelectionArea.innerHTML = `
+                            <div style="background: rgba(255,0,0,0.1); border: 1px solid rgba(255,76,76,0.5); padding: 15px; border-radius: 8px; text-align: center;">
+                                <i class="fas fa-exclamation-triangle" style="color: #ff4c4c; font-size: 2rem; margin-bottom: 10px;"></i>
+                                <p style="color: #ff4c4c; font-size: 0.9rem; margin-bottom: 15px;">Aún no se ha creado ningún club en el servidor.</p>
+                                <a href="clubes.html" style="display: inline-block; background: var(--primary-green); color: black; padding: 8px 15px; border-radius: 5px; text-decoration: none; font-weight: bold;"><i class="fas fa-plus"></i> Ir a Clubes</a>
+                            </div>
+                        `;
+                        confirmRegisterBtn.style.display = 'none';
+                    } else {
+                        let options = allClubes.map(c => `<option value="${c.name}">${c.name}</option>`).join('');
+                        clubSelectionArea.innerHTML = `
+                            <label style="color: var(--text-dim); font-size: 0.9rem; margin-bottom: 8px; display: block;">Selecciona un club existente:</label>
+                            <select id="team-select" style="width: 100%; padding: 12px; background: var(--input-bg); border: 1px solid var(--glass-border); border-radius: 8px; color: white; cursor: pointer; outline: none;">
+                                ${options}
+                            </select>
+                        `;
+                        confirmRegisterBtn.style.display = 'block';
+                    }
+
+                    modal.style.display = 'flex';
+                } catch (error) {
+                    console.error('Error fetching clubes:', error);
+                    alert('Error cargando los clubes del servidor.');
+                }
+            });
+            
+            document.getElementById('cancel-register-btn').addEventListener('click', () => {
+                modal.style.display = 'none';
+            });
+
+            confirmRegisterBtn.addEventListener('click', async () => {
+                const teamSelect = document.getElementById('team-select');
+                if (!teamSelect) return;
+                
+                const teamName = teamSelect.value;
+                
+                // Evitar inscripción duplicada
+                if (t.registeredTeams.includes(teamName)) {
+                    alert('Este equipo ya se encuentra inscrito en el torneo.');
+                    return;
+                }
+                
+                t.registeredTeams.push(teamName);
+                
+                try {
+                    const response = await fetch(`${API_URL}/${tId}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(t)
+                    });
+                    
+                    if (response.ok) {
+                        window.location.reload();
+                    } else {
+                        alert('Error al inscribir el equipo en el servidor');
+                    }
+                } catch (error) {
+                    console.error('Error updating torneo:', error);
+                    alert('Error de conexión con el servidor');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

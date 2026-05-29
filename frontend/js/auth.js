@@ -42,6 +42,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 localStorage.setItem('user_name', data.user.nombre_completo || data.user.nombre || '');
                 localStorage.setItem('user_id', String(data.user.id_usuario ?? data.user.id ?? ''));
                 
+                try {
+                    const perfilResponse = await fetch(`http://localhost:3001/api/jugadores/perfil/${data.user.id_usuario ?? data.user.id}`);
+                    if (perfilResponse.ok) {
+                        const perfil = await perfilResponse.json();
+                        localStorage.setItem('user_apodo', perfil.apodo || '');
+                    }
+                } catch (e) {
+                    console.error('No se pudo cargar el perfil para obtener el apodo', e);
+                }
+                
                 window.location.href = 'dashboard.html';
 
             } catch (err) {

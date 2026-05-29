@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RecochApp - Gestión de Club</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .roster-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .player-card {
+            background: var(--input-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .player-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .player-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary-green);
+        }
+        .remove-btn {
+            background: rgba(255, 76, 76, 0.1);
+            color: #ff4c4c;
+            border: 1px solid #ff4c4c;
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .remove-btn:hover {
+            background: #ff4c4c;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="background"></div>
+    <div class="section-container" style="max-width: 900px;">
+        <a href="clubes.html" class="back-btn"><i class="fas fa-arrow-left"></i> Volver a Mis Clubes</a>
+        
+        <header id="club-header" style="text-align: center; margin-bottom: 40px; border-bottom: 1px solid var(--glass-border); padding-bottom: 20px;">
+            <!-- Header dinámico -->
+        </header>
+
+        <div id="leave-panel" style="display: none; text-align: center; margin-bottom: 20px;">
+            <button class="login-btn" onclick="leaveClub()" style="background: rgba(255, 76, 76, 0.1); border: 1px solid #ff4c4c; color: #ff4c4c; width: auto; padding: 10px 20px;"><i class="fas fa-person-walking-arrow-right"></i> Por la puerta trasera</button>
+        </div>
+
+        <div id="admin-panel" style="display: none; background: rgba(0,0,0,0.2); padding: 20px; border-radius: 12px; margin-bottom: 30px; border: 1px solid var(--primary-green);">
+            <h3 style="color: var(--primary-green); margin-bottom: 15px;"><i class="fas fa-crown"></i> Panel de Presidente</h3>
+            <form id="add-player-form" style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <input type="text" id="new-player-apodo" placeholder="Apodo del jugador a invitar..." required style="flex: 1; padding: 12px; background: var(--input-bg); border: 1px solid var(--glass-border); border-radius: 8px; color: white; min-width: 250px;">
+                <button type="submit" class="login-btn" style="width: auto; padding: 10px 20px;"><i class="fas fa-user-plus"></i> Invitar cracks</button>
+            </form>
+        </div>
+
+        <h3 style="color: white; border-left: 4px solid var(--primary-green); padding-left: 10px;">Plantilla Oficial <span id="member-count" style="color: var(--text-dim); font-size: 0.9rem;"></span></h3>
+        
+        <div id="roster-container" class="roster-grid">
+            <!-- Lista de jugadores -->
+        </div>
+
+        <div id="delete-panel" style="display: none; text-align: center; margin-top: 50px; padding-top: 30px; border-top: 1px solid var(--glass-border);">
+            <button class="login-btn" onclick="deleteClub()" style="background: #ff4c4c; color: white; width: auto; padding: 12px 30px; font-weight: bold;"><i class="fas fa-skull"></i> Apague y vamonos</button>
+            <p style="color: var(--text-dim); font-size: 0.8rem; margin-top: 10px;">Atención: Esta acción no se puede deshacer.</p>
+        </div>
+
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const cId = urlParams.get('id');
+            
+            if (!cId) {
+                window.location.href = 'clubes.html';
+                return;
+            }
+
+            const API_URL = 'http://localhost:3001/api/clubes';
+            let club = null;
+
+            try {
+                const response = await fetch(`${API_URL}/${cId}`);
+                if (!response.ok) throw new Error('Club not found');
+                club = await response.json();
+            } catch (error) {
+                console.error('Error fetching club:', error);
+                window.location.href = 'clubes.html';
+                return;
+            }
+
+            const currentUser = localStorage.getItem('user_apodo');
+            
+            // Si el club se creó antes de añadir la regla del admin, el primer miembro es el admin por defecto
+            const adminEmail = club.admin || (club.members && club.members.length > 0 ? club.members[0] : null);
+            const isAdmin = (currentUser && currentUser === adminEmail);
+
+            // Render Header
+            const logoHtml = club.logo 
+                ? `<img src="${club.logo}" alt="Escudo" style="width: 100px; height: 100px; border-radius: 10px; object-fit: cover; box-shadow: 0 4px 10px rgba(0,0,0,0.5);">`
+                : `<div style="width: 100px; height: 100px; background: rgba(57, 255, 20, 0.1); border-radius: 10px; display: inline-flex; align-items: center; justify-content: center; margin: 0 auto; box-shadow: 0 4px 10px rgba(0,0,0,0.5);"><i class="fas fa-shield-halved" style="font-size: 3rem; color: var(--primary-green);"></i></div>`;
+            
+            document.getElementById('club-header').innerHTML = `
+                <div style="margin-bottom: 20px;">${logoHtml}</div>
+                <h1 style="font-size: 2.5rem;">${club.name}</h1>
+                <p style="color: var(--text-dim); margin-top: 10px;">${isAdmin ? 'Eres el Administrador de este equipo' : 'Eres un jugador de la plantilla'}</p>
+            `;
+
+            // Setup Admin Panel
+            if (isAdmin) {
+                document.getElementById('admin-panel').style.display = 'block';
+                document.getElementById('delete-panel').style.display = 'block';
+                
+                document.getElementById('add-player-form').addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    const newApodo = document.getElementById('new-player-apodo').value.trim();
+                    
+                    try {
+                        const response = await fetch(`${API_URL}/${cId}/invitar`, {
+                            method: 'PUT',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ target: newApodo })
+                        });
+                        
+                        const data = await response.json();
+                        
+                        if (response.ok) {
+                            alert(data.message || 'Invitación enviada.');
+                            document.getElementById('new-player-apodo').value = '';
+                            window.location.reload();
+                        } else {
+                            alert(data.error || 'Error al invitar.');
+                        }
+                    } catch (error) {
+                        console.error('Error:', error);
+                        alert('Error de conexión.');
+                    }
+                });
+            } else {
+                document.getElementById('leave-panel').style.display = 'block';
+            }
+
+            // Render Roster
+            const renderRoster = () => {
+                if (!club.members) club.members = [];
+                document.getElementById('member-count').textContent = `(${club.members.length} / 10)`;
+                const rosterContainer = document.getElementById('roster-container');
+                
+                rosterContainer.innerHTML = club.members.map(email => {
+                    const isPlayerAdmin = (email === adminEmail);
+                    const isMe = (email === currentUser);
+                    
+                    let roleBadge = isPlayerAdmin 
+                        ? `<span style="background: rgba(255, 215, 0, 0.2); color: #FFD700; padding: 2px 8px; border-radius: 4px; font-size: 0.7rem; margin-left: 10px;"><i class="fas fa-crown"></i> Presi</span>`
+                        : '';
+                    
+                    let meBadge = isMe 
+                        ? `<span style="background: rgba(57, 255, 20, 0.2); color: var(--primary-green); padding: 2px 8px; border-radius: 4px; font-size: 0.7rem; margin-left: 10px;">Tú</span>`
+                        : '';
+
+                    let removeBtn = '';
+                    let crownBtn = '';
+                    // Solo el admin puede ver los botones de remover, y no puede removerse a sí mismo desde aquí
+                    if (isAdmin && !isPlayerAdmin) {
+                        crownBtn = `<button class="remove-btn" onclick="passAdmin('${email}')" title="Pasar Capitanía" style="color: #FFD700; border-color: #FFD700; background: rgba(255, 215, 0, 0.1); margin-right: 5px;"><i class="fas fa-crown"></i></button>`;
+                        removeBtn = `<button class="remove-btn" onclick="removePlayer('${email}')" title="Expulsar jugador"><i class="fas fa-times"></i></button>`;
+                    }
+
+                    return `
+                        <div class="player-card">
+                            <div class="player-info">
+                                <div class="player-avatar"><i class="fas fa-user"></i></div>
+                                <div>
+                                    <h4 style="margin: 0; font-size: 0.95rem; display: flex; align-items: center;">
+                                        <a href="perfil.html?apodo=${email}" style="color: white; text-decoration: none; transition: 0.2s;" onmouseover="this.style.color='var(--primary-green)'" onmouseout="this.style.color='white'">@${email}</a> 
+                                        ${roleBadge} ${meBadge}
+                                    </h4>
+                                </div>
+                            </div>
+                            <div>
+                                ${crownBtn}
+                                ${removeBtn}
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            };
+
+            renderRoster();
+
+            // Función global para remover jugador
+            window.removePlayer = (emailToRemove) => {
+                if (confirm(`¿Estás seguro de que deseas expulsar a @${emailToRemove} de ${club.name}?`)) {
+                    club.members = club.members.filter(e => e !== emailToRemove);
+                    saveAndReload();
+                }
+            };
+
+            // Función global para transferir capitanía
+            window.passAdmin = async (newAdminEmail) => {
+                if (confirm(`¿Estás seguro de querer pasarle la capitanía a @${newAdminEmail}? Ya no serás el presidente del club.`)) {
+                    try {
+                        const response = await fetch(`${API_URL}/${cId}/transferirAdmin`, {
+                            method: 'PUT',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ adminActual: currentUser, nuevoAdmin: newAdminEmail })
+                        });
+                        
+                        if (response.ok) {
+                            window.location.reload();
+                        } else {
+                            const data = await response.json();
+                            alert(data.error || 'Error al transferir mando.');
+                        }
+                    } catch (error) {
+                        console.error('Error:', error);
+                        alert('Error de conexión.');
+                    }
+                }
+            };
+
+            // Función global para dejar el club
+            window.leaveClub = async () => {
+                if (confirm(`¿Estás seguro de querer salir por la puerta trasera de ${club.name}?`)) {
+                    try {
+                        const response = await fetch(`${API_URL}/${cId}/salir`, {
+                            method: 'PUT',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ apodo: currentUser })
+                        });
+                        
+                        if (response.ok) {
+                            window.location.href = 'clubes.html';
+                        } else {
+                            const data = await response.json();
+                            alert(data.error || 'Error al salir del club.');
+                        }
+                    } catch (error) {
+                        console.error('Error:', error);
+                        alert('Error de conexión.');
+                    }
+                }
+            };
+
+            // Función global para borrar el club
+            window.deleteClub = async () => {
+                if (confirm(`🚨 ATENCIÓN 🚨\n¿Estás completamente seguro de querer borrar el club ${club.name}? Todos los jugadores serán deslindados y el club desaparecerá para siempre.`)) {
+                    try {
+                        const response = await fetch(`${API_URL}/${cId}`, {
+                            method: 'DELETE'
+                        });
+                        
+                        if (response.ok) {
+                            alert("El club ha sido borrado exitosamente.");
+                            window.location.href = 'clubes.html';
+                        } else {
+                            alert('Error al borrar el club.');
+                        }
+                    } catch (error) {
+                        console.error('Error:', error);
+                        alert('Error de conexión.');
+                    }
+                }
+            };
+
+            const saveAndReload = async () => {
+                try {
+                    const response = await fetch(`${API_URL}/${cId}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(club)
+                    });
+                    if (response.ok) {
+                        window.location.reload();
+                    } else {
+                        alert('Error al guardar los cambios en el servidor');
+                    }
+                } catch (error) {
+                    console.error('Error saving club:', error);
+                    alert('Error de conexión con el servidor');
+                }
+            };
+        });
+    </script>
+</body>
+</html>

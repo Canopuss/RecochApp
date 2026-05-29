@@ -11,7 +11,19 @@ document.addEventListener('DOMContentLoaded', async () => {
     const form = document.getElementById('perfil-form');
     const loading = document.getElementById('loading-perfil');
     const posicionesContainer = document.getElementById('posiciones-container');
-    const zonaSelect = document.getElementById('perfil-zona');
+    const clubSelect = document.getElementById('perfil-club');
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const targetApodo = urlParams.get('apodo');
+    const isExternalView = targetApodo && targetApodo !== localStorage.getItem('user_apodo');
+
+    if (isExternalView) {
+        document.querySelector('.danger-zone').style.display = 'none';
+        form.querySelector('button[type="submit"]').style.display = 'none';
+        clubSelect.disabled = true;
+        document.getElementById('perfil-pierna').disabled = true;
+        document.getElementById('perfil-edad').disabled = true;
+    }
 
     // Cargar opciones primero
     try {
@@ -37,45 +49,67 @@ document.addEventListener('DOMContentLoaded', async () => {
                     alert('Puedes seleccionar máximo 3 posiciones.');
                 }
             });
-        });
-
-        opcionesData.ubicaciones.forEach(ubicacion => {
-            const option = document.createElement('option');
-            option.value = ubicacion;
-            option.textContent = ubicacion;
-            zonaSelect.appendChild(option);
+            if (isExternalView) {
+                cb.disabled = true;
+            }
         });
     } catch (e) {
         console.error("Error cargando opciones", e);
     }
 
+    // Cargar clubes en los que está el usuario
+    const userToFetch = isExternalView ? targetApodo : localStorage.getItem('user_apodo');
+    try {
+        const clubesRes = await fetch(`http://localhost:3001/api/clubes/usuario/${userToFetch}`);
+        if (clubesRes.ok) {
+            const clubesData = await clubesRes.json();
+            clubesData.forEach(club => {
+                const opt = document.createElement('option');
+                opt.value = club.name;
+                opt.textContent = club.name;
+                clubSelect.appendChild(opt);
+            });
+        }
+    } catch (e) {
+        console.error("Error cargando clubes", e);
+    }
+
     // Cargar perfil del usuario
     let perfilExiste = false;
+    let perfilActual = null;
     try {
-        const perfilRes = await fetch(`http://localhost:3001/api/jugadores/perfil/${userId}`);
+        const urlFetch = isExternalView 
+            ? `http://localhost:3001/api/jugadores/apodo/${targetApodo}`
+            : `http://localhost:3001/api/jugadores/perfil/${userId}`;
+
+        const perfilRes = await fetch(urlFetch);
         if (perfilRes.ok) {
             perfilExiste = true;
-            const perfil = await perfilRes.json();
+            perfilActual = await perfilRes.json();
             
-            document.getElementById('display-name').textContent = perfil.nombreCompleto || userName;
-            document.getElementById('display-email').textContent = perfil.email || userEmail;
+            document.getElementById('display-name').textContent = perfilActual.nombreCompleto || userName;
+            document.getElementById('display-email').textContent = isExternalView ? `@${perfilActual.apodo}` : (perfilActual.email || userEmail);
             
-            document.getElementById('perfil-club').value = perfil.clubNombre || '';
-            document.getElementById('perfil-zona').value = perfil.ubicacion || '';
-            document.getElementById('perfil-pierna').value = perfil.piernaHabil || 'Derecha';
-            document.getElementById('perfil-edad').value = perfil.edad || '';
+            clubSelect.value = perfilActual.clubNombre || '';
+            document.getElementById('perfil-pierna').value = perfilActual.piernaHabil || 'Derecha';
+            document.getElementById('perfil-edad').value = perfilActual.edad || '';
             
-            if (perfil.fotoPerfil) {
-                document.getElementById('preview-foto').src = perfil.fotoPerfil;
+            if (perfilActual.fotoPerfil) {
+                document.getElementById('preview-foto').src = perfilActual.fotoPerfil;
             }
 
-            if (perfil.posiciones) {
-                perfil.posiciones.forEach(pos => {
+            if (perfilActual.posiciones) {
+                perfilActual.posiciones.forEach(pos => {
                     const cb = document.getElementById(`pos_${pos}`);
                     if (cb) cb.checked = true;
                 });
             }
         } else {
+            if (isExternalView) {
+                alert('Perfil no encontrado');
+                window.location.href = 'dashboard.html';
+                return;
+            }
             document.getElementById('display-name').textContent = userName;
             document.getElementById('display-email').textContent = userEmail;
         }
@@ -95,10 +129,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         const payload = {
             usuarioId: userId,
             nombreCompleto: document.getElementById('display-name').textContent,
-            email: document.getElementById('display-email').textContent,
+            email: isExternalView ? document.getElementById('display-email').textContent : userEmail,
+            apodo: localStorage.getItem('user_apodo'),
             posiciones: selectedPos,
-            clubNombre: document.getElementById('perfil-club').value,
-            ubicacion: document.getElementById('perfil-zona').value,
+            clubNombre: clubSelect.value,
             piernaHabil: document.getElementById('perfil-pierna').value,
             edad: parseInt(document.getElementById('perfil-edad').value)
         };

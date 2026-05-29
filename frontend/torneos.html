@@ -16,12 +16,181 @@
             <p>Compite en las ligas locales y conviértete en una leyenda.</p>
         </header>
 
-        <div style="text-align: center; padding: 40px; border: 2px dashed var(--glass-border); border-radius: 15px;">
+        <div id="tournaments-list-container" style="display: none; text-align: left; margin-bottom: 20px;">
+            <h3 style="margin-bottom: 15px; color: var(--primary-green); border-bottom: 1px solid var(--glass-border); padding-bottom: 10px;">Mis Torneos Administrados</h3>
+            <div id="tournaments-list" style="display: grid; gap: 15px;"></div>
+        </div>
+
+        <div id="empty-state" style="text-align: center; padding: 40px; border: 2px dashed var(--glass-border); border-radius: 15px;">
             <i class="fas fa-search" style="font-size: 3rem; color: var(--primary-green); margin-bottom: 20px; display: block;"></i>
-            <h3>No estás inscrito en ningún torneo</h3>
-            <p style="color: var(--text-dim); margin-bottom: 25px;">Busca torneos cerca de ti o solicita entrar a uno.</p>
-            <button class="login-btn" style="width: auto; padding: 12px 30px;">Explorar Ligas</button>
+            <h3>No administras ni participas en ningún torneo</h3>
+            <p style="color: var(--text-dim); margin-bottom: 25px;">Busca torneos cerca de ti o crea el tuyo propio.</p>
+        </div>
+
+        <div id="action-buttons" style="text-align: center; margin-top: 20px; display: flex; justify-content: center; gap: 15px;">
+            <button id="explore-btn" class="login-btn" style="width: auto; padding: 12px 30px; background: rgba(255,255,255,0.1); color: var(--text-white);">Explorar Ligas</button>
+            <button id="create-btn" class="login-btn" style="width: auto; padding: 12px 30px;">Crear Torneo/Liga</button>
+        </div>
+
+        <div id="create-tournament-form" style="display: none; margin-top: 30px; text-align: left; background: rgba(0,0,0,0.2); padding: 20px; border-radius: 10px;">
+            <h3 style="margin-bottom: 15px; color: var(--primary-green);">Configuración del Torneo</h3>
+            <form id="new-tournament-form">
+                <div class="form-group">
+                    <label for="t-name">Nombre del Torneo</label>
+                    <input type="text" id="t-name" placeholder="Ej: Copa Relámpago Fin de Año" required>
+                </div>
+                <div class="form-group">
+                    <label for="t-format">Formato</label>
+                    <select id="t-format" required style="width: 100%; padding: 12px 16px; background: var(--input-bg); border: 1px solid var(--glass-border); border-radius: 10px; color: #fff; font-size: 1rem; appearance: none; cursor: pointer;">
+                        <option value="relampago" style="color: #000;">Torneo Relámpago (Eliminación Directa)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="t-teams">Cantidad de Equipos</label>
+                    <select id="t-teams" required style="width: 100%; padding: 12px 16px; background: var(--input-bg); border: 1px solid var(--glass-border); border-radius: 10px; color: #fff; font-size: 1rem; appearance: none; cursor: pointer;">
+                        <option value="4" style="color: #000;">4 Equipos (Semifinales directo)</option>
+                        <option value="8" style="color: #000;">8 Equipos (Cuartos de final)</option>
+                        <option value="16" style="color: #000;">16 Equipos (Octavos de final)</option>
+                    </select>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                    <div class="form-group">
+                        <label for="t-date">Fecha de Inicio</label>
+                        <input type="date" id="t-date" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="t-time">Hora</label>
+                        <input type="time" id="t-time" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="t-location">Sede del Torneo</label>
+                    <input type="text" id="t-location" placeholder="Ej: Complejo 5 vs 5..." required>
+                </div>
+                <div class="form-group" id="t-map-container" style="display: none; margin-top: 15px; animation: fadeIn 0.5s ease-out;">
+                    <iframe id="t-google-map" width="100%" height="250" style="border:0; border-radius: 10px; border: 1px solid var(--glass-border);" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                </div>
+                <button type="submit" class="login-btn">Crear Torneo</button>
+                <button type="button" id="cancel-t-btn" class="login-btn" style="background: rgba(255,255,255,0.1); color: var(--text-white); margin-top: 10px;">Cancelar</button>
+            </form>
         </div>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const createBtn = document.getElementById('create-btn');
+            const exploreBtn = document.getElementById('explore-btn');
+            const actionButtons = document.getElementById('action-buttons');
+            const formDiv = document.getElementById('create-tournament-form');
+            const cancelBtn = document.getElementById('cancel-t-btn');
+            const newTournamentForm = document.getElementById('new-tournament-form');
+            const tournamentsListContainer = document.getElementById('tournaments-list-container');
+            const tournamentsList = document.getElementById('tournaments-list');
+            const emptyState = document.getElementById('empty-state');
+
+            const API_URL = 'http://localhost:3001/api/torneos';
+
+            const loadTournaments = async () => {
+                try {
+                    const response = await fetch(API_URL);
+                    const tournaments = await response.json();
+                    
+                    if (tournaments.length > 0) {
+                        emptyState.style.display = 'none';
+                        tournamentsListContainer.style.display = 'block';
+                        tournamentsList.innerHTML = tournaments.map(t => `
+                            <div style="background: var(--input-bg); padding: 15px; border-radius: 10px; border-left: 4px solid var(--primary-green); cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'" onclick="window.location.href='torneo-detalles.html?id=${t.id}'">
+                                <div style="display: flex; justify-content: space-between; align-items: start;">
+                                    <div>
+                                        <h4 style="font-size: 1.1rem; margin-bottom: 5px;"><i class="fas fa-trophy" style="color: var(--primary-green);"></i> ${t.name}</h4>
+                                        <p style="color: var(--text-dim); font-size: 0.9rem;">
+                                            <i class="fas fa-sitemap"></i> Formato: Relámpago (${t.teams} Equipos) <br>
+                                            <i class="fas fa-map-marker-alt" style="color: var(--primary-green);"></i> ${t.location} <br>
+                                            <i class="far fa-calendar-alt"></i> ${t.date} &nbsp; <i class="far fa-clock"></i> ${t.time}
+                                        </p>
+                                    </div>
+                                    <span style="background: rgba(57, 255, 20, 0.2); color: var(--primary-green); padding: 5px 10px; border-radius: 20px; font-size: 0.8rem; font-weight: bold;">Inscripciones Abiertas</span>
+                                </div>
+                            </div>
+                        `).join('');
+                    } else {
+                        emptyState.style.display = 'block';
+                        tournamentsListContainer.style.display = 'none';
+                    }
+                } catch (error) {
+                    console.error('Error fetching torneos:', error);
+                    emptyState.style.display = 'block';
+                    tournamentsListContainer.style.display = 'none';
+                }
+            };
+
+            loadTournaments();
+
+            createBtn.addEventListener('click', () => {
+                actionButtons.style.display = 'none';
+                formDiv.style.display = 'block';
+            });
+
+            cancelBtn.addEventListener('click', () => {
+                formDiv.style.display = 'none';
+                actionButtons.style.display = 'flex';
+            });
+
+            newTournamentForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const name = document.getElementById('t-name').value;
+                const teams = document.getElementById('t-teams').value;
+                const date = document.getElementById('t-date').value;
+                const time = document.getElementById('t-time').value;
+                const location = document.getElementById('t-location').value;
+                
+                const newT = { name, teams, date, time, location, format: 'relampago', registeredTeams: [] };
+                
+                try {
+                    const response = await fetch(API_URL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(newT)
+                    });
+                    
+                    if (response.ok) {
+                        formDiv.style.display = 'none';
+                        actionButtons.style.display = 'flex';
+                        newTournamentForm.reset();
+                        document.getElementById('t-map-container').style.display = 'none';
+                        document.getElementById('t-google-map').src = '';
+                        loadTournaments();
+                    } else {
+                        alert('Error al crear torneo en el servidor.');
+                    }
+                } catch (error) {
+                    console.error('Error creating torneo:', error);
+                    alert('Error de conexión con el servidor.');
+                }
+            });
+
+            // Google Maps Integration for Tournaments
+            const locationInput = document.getElementById('t-location');
+            const mapContainer = document.getElementById('t-map-container');
+            const googleMap = document.getElementById('t-google-map');
+            let debounceTimer;
+
+            locationInput.addEventListener('input', (e) => {
+                clearTimeout(debounceTimer);
+                const query = e.target.value.trim();
+                
+                if (query.length > 4) {
+                    debounceTimer = setTimeout(() => {
+                        const encodedQuery = encodeURIComponent(query);
+                        googleMap.src = `https://www.google.com/maps/embed/v1/place?key=AIzaSyBRSYAUPUHC-tW1ua5XSMaTFSTv34hXw58&q=${encodedQuery}`;
+                        mapContainer.style.display = 'block';
+                    }, 1000);
+                } else {
+                    mapContainer.style.display = 'none';
+                    googleMap.src = '';
+                }
+            });
+        });
+    </script>
 </body>
 </html>

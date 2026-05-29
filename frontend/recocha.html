@@ -46,6 +46,9 @@
                     <label for="match-location">Lugar</label>
                     <input type="text" id="match-location" placeholder="Ej: Cancha sintética, Polideportivo..." required>
                 </div>
+                <div class="form-group" id="map-container" style="display: none; margin-top: 15px; animation: fadeIn 0.5s ease-out;">
+                    <iframe id="google-map" width="100%" height="250" style="border:0; border-radius: 10px; border: 1px solid var(--glass-border);" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                </div>
                 <button type="submit" class="login-btn">Programar Partido</button>
                 <button type="button" id="cancel-match-btn" class="login-btn" style="background: rgba(255,255,255,0.1); color: var(--text-white); margin-top: 10px;">Cancelar</button>
             </form>
@@ -62,26 +65,78 @@
             const matchesList = document.getElementById('matches-list');
             const emptyState = document.getElementById('empty-state');
 
-            // Load matches
-            const loadMatches = () => {
-                const matches = JSON.parse(localStorage.getItem('recochas') || '[]');
-                if (matches.length > 0) {
+            const currentUserApodo = localStorage.getItem('user_apodo');
+            if (!currentUserApodo) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            const API_URL = 'http://localhost:3001/api/recochas';
+
+            // Load matches from API
+            const loadMatches = async () => {
+                try {
+                    const response = await fetch(`${API_URL}/usuario/${currentUserApodo}`);
+                    const matches = await response.json();
+                    
+                    if (matches && matches.length > 0) {
+                        emptyState.style.display = 'none';
+                        matchesListContainer.style.display = 'block';
+                        matchesList.innerHTML = matches.map(match => {
+                            const isCreator = match.creadorApodo === currentUserApodo;
+                            const status = isCreator ? 'ACCEPTED' : (match.invitados ? match.invitados[currentUserApodo] : 'PENDING');
+                            
+                            let statusHtml = '';
+                            if (status === 'ACCEPTED' || isCreator) {
+                                statusHtml = `<span style="background: rgba(57, 255, 20, 0.2); color: var(--primary-green); padding: 5px 10px; border-radius: 20px; font-size: 0.8rem; font-weight: bold;">Programado</span>`;
+                            } else if (status === 'PENDING') {
+                                statusHtml = `
+                                    <div style="display: flex; gap: 10px; align-items: center;">
+                                        <span style="color: var(--text-dim); font-size: 0.8rem;">Invitación:</span>
+                                        <button onclick="respondInvite('${match.id}', 'ACCEPTED')" style="background: none; border: none; color: var(--primary-green); cursor: pointer; font-size: 1.2rem;" title="Aceptar"><i class="fas fa-check-circle"></i></button>
+                                        <button onclick="respondInvite('${match.id}', 'REJECTED')" style="background: none; border: none; color: #ff4c4c; cursor: pointer; font-size: 1.2rem;" title="Rechazar"><i class="fas fa-times-circle"></i></button>
+                                    </div>
+                                `;
+                            }
+
+                            const inviteSection = (isCreator || status === 'ACCEPTED') ? `
+                                <div style="margin-top: 15px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 10px;">
+                                    <form onsubmit="inviteToMatch(event, '${match.id}')" style="display: flex; gap: 10px;">
+                                        <input type="text" id="invite-input-${match.id}" placeholder="Apodo de jugador o nombre de club..." required style="flex: 1; padding: 8px; border-radius: 5px; border: 1px solid var(--glass-border); background: rgba(0,0,0,0.3); color: white; font-size: 0.9rem;">
+                                        <button type="submit" class="login-btn" style="padding: 8px 15px; width: auto; font-size: 0.9rem;"><i class="fas fa-user-plus"></i> Invitar</button>
+                                    </form>
+                                    <div style="margin-top: 10px; font-size: 0.8rem; color: var(--text-dim);">
+                                        <strong>Invitados confirmados:</strong> 
+                                        ${match.invitados ? Object.keys(match.invitados).filter(k => match.invitados[k] === 'ACCEPTED').join(', ') || 'Ninguno' : 'Ninguno'}
+                                    </div>
+                                </div>
+                            ` : '';
+
+                            return `
+                            <div style="background: var(--input-bg); padding: 15px; border-radius: 10px; border-left: 4px solid ${status === 'PENDING' ? '#ffaa00' : 'var(--primary-green)'};">
+                                <div style="display: flex; justify-content: space-between; align-items: start;">
+                                    <div>
+                                        <h4 style="font-size: 1.1rem; margin-bottom: 5px;"><i class="fas fa-map-marker-alt" style="color: var(--primary-green);"></i> ${match.location}</h4>
+                                        <p style="color: var(--text-dim); font-size: 0.9rem;"><i class="far fa-calendar-alt"></i> ${match.date} &nbsp; <i class="far fa-clock"></i> ${match.time}</p>
+                                        ${!isCreator ? `<p style="font-size: 0.8rem; color: #aaa; margin-top: 5px;"><i class="fas fa-user"></i> Creado por: @${match.creadorApodo}</p>` : ''}
+                                    </div>
+                                    <div style="text-align: right;">
+                                        ${statusHtml}
+                                    </div>
+                                </div>
+                                ${inviteSection}
+                            </div>
+                            `;
+                        }).join('');
+                    } else {
+                        emptyState.style.display = 'block';
+                        matchesListContainer.style.display = 'none';
+                    }
+                } catch (error) {
+                    console.error('Error loading matches:', error);
+                    matchesList.innerHTML = '<p style="color: red;">Error al cargar las recochas desde el servidor.</p>';
                     emptyState.style.display = 'none';
                     matchesListContainer.style.display = 'block';
-                    matchesList.innerHTML = matches.map(match => `
-                        <div style="background: var(--input-bg); padding: 15px; border-radius: 10px; border-left: 4px solid var(--primary-green);">
-                            <div style="display: flex; justify-content: space-between; align-items: start;">
-                                <div>
-                                    <h4 style="font-size: 1.1rem; margin-bottom: 5px;"><i class="fas fa-map-marker-alt" style="color: var(--primary-green);"></i> ${match.location}</h4>
-                                    <p style="color: var(--text-dim); font-size: 0.9rem;"><i class="far fa-calendar-alt"></i> ${match.date} &nbsp; <i class="far fa-clock"></i> ${match.time}</p>
-                                </div>
-                                <span style="background: rgba(57, 255, 20, 0.2); color: var(--primary-green); padding: 5px 10px; border-radius: 20px; font-size: 0.8rem; font-weight: bold;">Programado</span>
-                            </div>
-                        </div>
-                    `).join('');
-                } else {
-                    emptyState.style.display = 'block';
-                    matchesListContainer.style.display = 'none';
                 }
             };
 
@@ -97,21 +152,105 @@
                 createBtn.style.display = 'inline-block';
             });
 
-            newMatchForm.addEventListener('submit', (e) => {
+            newMatchForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
                 const date = document.getElementById('match-date').value;
                 const time = document.getElementById('match-time').value;
                 const location = document.getElementById('match-location').value;
                 
-                const newMatch = { id: Date.now(), date, time, location };
-                const matches = JSON.parse(localStorage.getItem('recochas') || '[]');
-                matches.push(newMatch);
-                localStorage.setItem('recochas', JSON.stringify(matches));
+                const newMatch = { creadorApodo: currentUserApodo, date, time, location };
                 
-                formDiv.style.display = 'none';
-                createBtn.style.display = 'inline-block';
-                newMatchForm.reset();
-                loadMatches();
+                try {
+                    const response = await fetch(API_URL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(newMatch)
+                    });
+                    
+                    if (response.ok) {
+                        formDiv.style.display = 'none';
+                        createBtn.style.display = 'inline-block';
+                        newMatchForm.reset();
+                        document.getElementById('map-container').style.display = 'none';
+                        document.getElementById('google-map').src = '';
+                        loadMatches();
+                    } else {
+                        alert('Error al crear el partido en el servidor.');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('Error de conexión.');
+                }
+            });
+
+            // Global functions for inline onclick handlers
+            window.inviteToMatch = async (e, matchId) => {
+                e.preventDefault();
+                const inputEl = document.getElementById(`invite-input-${matchId}`);
+                const target = inputEl.value.trim();
+
+                try {
+                    const response = await fetch(`${API_URL}/${matchId}/invitar`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ target })
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (response.ok) {
+                        alert(data.message || 'Invitaciones enviadas.');
+                        inputEl.value = '';
+                        loadMatches();
+                    } else {
+                        alert(data.error || 'Error al invitar.');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('Error de conexión.');
+                }
+            };
+
+            window.respondInvite = async (matchId, status) => {
+                try {
+                    const response = await fetch(`${API_URL}/${matchId}/respuesta`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ apodo: currentUserApodo, respuesta: status })
+                    });
+                    
+                    if (response.ok) {
+                        loadMatches();
+                    } else {
+                        const data = await response.json();
+                        alert(data.error || 'Error al responder a la invitación.');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('Error de conexión.');
+                }
+            };
+
+            // Google Maps Integration
+            const locationInput = document.getElementById('match-location');
+            const mapContainer = document.getElementById('map-container');
+            const googleMap = document.getElementById('google-map');
+            let debounceTimer;
+
+            locationInput.addEventListener('input', (e) => {
+                clearTimeout(debounceTimer);
+                const query = e.target.value.trim();
+                
+                if (query.length > 4) {
+                    debounceTimer = setTimeout(() => {
+                        const encodedQuery = encodeURIComponent(query);
+                        googleMap.src = `https://www.google.com/maps/embed/v1/place?key=AIzaSyBRSYAUPUHC-tW1ua5XSMaTFSTv34hXw58&q=${encodedQuery}`;
+                        mapContainer.style.display = 'block';
+                    }, 1000); // Wait 1 second after typing stops to load map
+                } else {
+                    mapContainer.style.display = 'none';
+                    googleMap.src = '';
+                }
             });
         });
     </script>
